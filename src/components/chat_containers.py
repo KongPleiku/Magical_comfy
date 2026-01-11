@@ -7,13 +7,17 @@ import re
 class ChatBar(ft.Container):
     def __init__(self):
         self.action_button = ft.IconButton(
-            icon=ft.Icons.SEND, icon_color=ft.Colors.WHITE, tooltip="Send"
+            icon=ft.Icons.SEND,
+            icon_color=ft.Colors.WHITE,
+            tooltip="Send",
+            on_click=self._on_send_click,
         )
 
+        # Current_State
         self.cursor_position = 0
         self.last_value = ""
 
-        self.on_change = None
+        self.on_generate = False
 
         self.prompt_field = ft.TextField(
             hint_text="Describe your image...",
@@ -66,6 +70,22 @@ class ChatBar(ft.Container):
     def set_prompt(self, value: str):
         self.prompt_field.value = value
         self.last_value = value
+        self.update()
+
+    def _on_send_click(self, e):
+
+        if self.on_generate:
+            logger.info(f"On Generate")
+
+            self.action_button.icon = ft.Icons.CLOSE
+            self.action_button.icon_color = ft.Colors.RED
+
+        else:
+            logger.info(f"On Cancellation")
+            self.action_button.icon = ft.Icons.SEND
+            self.action_button.icon_color = ft.Colors.WHITE
+
+        self.on_generate = not self.on_generate
         self.update()
 
     # --- INTELLIGENT SUGGESTION LOGIC ---
@@ -128,9 +148,6 @@ class ChatBar(ft.Container):
 
         # 2. Update last_value for the next event
         self.last_value = current_text
-
-        if self.on_change:
-            self.on_change()
 
         self._trigger_suggestions()
 
