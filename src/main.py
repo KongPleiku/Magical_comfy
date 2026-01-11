@@ -2,6 +2,7 @@ import flet as ft
 from loguru import logger
 from views.main_view import Main_View
 from utils.ultis import ALL_TAGS
+from services.setting_services import settings_services
 
 
 def main(page: ft.Page):
