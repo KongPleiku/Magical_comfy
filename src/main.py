@@ -1,26 +1,22 @@
 import flet as ft
+from loguru import logger
+from components.Image_component import Image_component
+from views.main_view import Main_View
 
 
 def main(page: ft.Page):
-    counter = ft.Text("0", size=50, data=0)
+    def router(route):
+        page.views.clear()
+        logger.info(f"Navigating to {page.route}")
 
-    def increment_click(e):
-        counter.data += 1
-        counter.value = str(counter.data)
-        counter.update()
+        if page.route == "/main":
+            main = Main_View(page)
+            page.views.append(main)
 
-    page.floating_action_button = ft.FloatingActionButton(
-        icon=ft.Icons.ADD, on_click=increment_click
-    )
-    page.add(
-        ft.SafeArea(
-            ft.Container(
-                counter,
-                alignment=ft.alignment.center,
-            ),
-            expand=True,
-        )
-    )
+        page.update()
+
+    page.on_route_change = router
+    page.go("/main")
 
 
-ft.app(main)
+ft.app(main, assets_dir="assets")
