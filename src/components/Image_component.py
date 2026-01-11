@@ -1,18 +1,20 @@
 import flet as ft
 
-src = "images/sample.jpg"
+src = "https://picsum.photos/1080/1920"
 
 
 class Image_component(ft.InteractiveViewer):
     def __init__(self):
-        # init content image
-        self.image = ft.Image(src=src)
+        self.image = ft.Image(
+            src="https://picsum.photos/1080/1920",
+            fit=ft.ImageFit.FIT_WIDTH,
+            expand=True,
+        )
 
-        # init interactive view
-        super().__init__(content=self.image)
-        self.min_scale = 1.0
-        self.max_scale = 5.0
-
-    def change_image(self, image):
-        self.image.src = image
-        self.update()
+        super().__init__(
+            content=self.image,
+            expand=True,
+            min_scale=1.0,
+            max_scale=5.0,
+            boundary_margin=ft.margin.all(5),
+        )

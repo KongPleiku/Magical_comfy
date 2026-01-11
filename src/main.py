@@ -1,6 +1,5 @@
 import flet as ft
 from loguru import logger
-from components.Image_component import Image_component
 from views.main_view import Main_View
 
 

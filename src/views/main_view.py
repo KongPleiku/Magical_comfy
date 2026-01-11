@@ -1,19 +1,34 @@
 import flet as ft
 from loguru import logger
-from components.Image_component import Image_component
-from components.connection_indicator import ConnectionIndicator
-from containers.setting.container import setting_panel
+from components.image_component import Image_component
+from components.setting_containers import Setting_container
+from components.chat_containers import ChatBar
 
 
 class Main_View(ft.View):
     def __init__(self, page: ft.Page):
-        super().__init__(route="/main")
-        self.page = page
-        self.init_view()
-        logger.info("Main_View initialized.")
-
-    def init_view(self):
-        stack = ft.Stack(
-            controls=[Image_component(), ConnectionIndicator(), setting_panel()]
+        super().__init__(
+            route="/main",
+            padding=0,
+            spacing=0,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         )
-        self.controls = [stack]
+        self.page = page
+        self.fixed_height = self.page.height
+
+        self.controls = [
+            ft.Stack(
+                controls=[
+                    ft.Container(
+                        content=Image_component(),
+                        height=self.fixed_height,
+                        width=self.page.width,
+                    ),
+                    Setting_container(),
+                    ChatBar(),
+                ],
+                alignment=ft.alignment.top_center,
+                expand=True,
+            )
+        ]
+        logger.info("Main_View initialized.")
