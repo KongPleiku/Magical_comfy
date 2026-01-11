@@ -2,6 +2,7 @@ import flet as ft
 from loguru import logger
 from components.Image_component import Image_component
 from components.connection_indicator import ConnectionIndicator
+from containers.setting.container import setting_panel
 
 
 class Main_View(ft.View):
@@ -13,9 +14,6 @@ class Main_View(ft.View):
 
     def init_view(self):
         stack = ft.Stack(
-            controls=[
-                Image_component(),
-                ConnectionIndicator(),
-            ]
+            controls=[Image_component(), ConnectionIndicator(), setting_panel()]
         )
         self.controls = [stack]
