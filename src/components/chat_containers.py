@@ -7,7 +7,7 @@ import re
 class ChatBar(ft.Container):
     def __init__(self):
         self.action_button = ft.IconButton(
-            icon=ft.icons.SEND, icon_color=ft.colors.WHITE, tooltip="Send"
+            icon=ft.Icons.SEND, icon_color=ft.Colors.WHITE, tooltip="Send"
         )
 
         self.cursor_position = 0
@@ -18,14 +18,14 @@ class ChatBar(ft.Container):
         self.prompt_field = ft.TextField(
             hint_text="Describe your image...",
             border_radius=25,
-            bgcolor=ft.colors.BLACK54,
+            bgcolor=ft.Colors.BLACK54,
             filled=True,
             multiline=True,
             min_lines=1,
             max_lines=3,
             content_padding=ft.padding.symmetric(horizontal=20, vertical=10),
             expand=True,
-            border_color=ft.colors.TRANSPARENT,
+            border_color=ft.Colors.TRANSPARENT,
             on_change=self._on_text_change,
         )
 
@@ -33,7 +33,7 @@ class ChatBar(ft.Container):
         # Temparory add suggestion view
         self.suggestion_container = ft.Container(
             content=self.suggestion_list,
-            bgcolor=ft.colors.GREY_900,
+            bgcolor=ft.Colors.GREY_900,
             border_radius=15,
             height=0,  # Change this to 0 to hide
             opacity=0,  # Change this to 0 to hide
@@ -60,7 +60,7 @@ class ChatBar(ft.Container):
             bottom=0,
             left=0,
             right=0,
-            bgcolor=ft.colors.with_opacity(0.1, ft.colors.WHITE),
+            bgcolor=ft.Colors.with_opacity(0.1, ft.Colors.WHITE),
         )
 
     def set_prompt(self, value: str):

@@ -9,18 +9,18 @@ class Setting_container(ft.Container):
             width=10,
             height=10,
             shape=ft.BoxShape.CIRCLE,
-            bgcolor=ft.colors.RED_500,  # Default to red (not connected)
+            bgcolor=ft.Colors.RED_500,  # Default to red (not connected)
         )
 
         self.setting_button = ft.IconButton(
-            icon=ft.icons.SETTINGS,
+            icon=ft.Icons.SETTINGS,
             tooltip="Settings",
             padding=0,
             on_click=lambda e: logger.info("Settings button clicked"),
         )
 
         self.gallery_button = ft.IconButton(
-            icon=ft.icons.IMAGE,
+            icon=ft.Icons.IMAGE,
             tooltip="Gallery",
             padding=0,
             on_click=lambda e: logger.info("Gallery button clicked"),
@@ -37,7 +37,7 @@ class Setting_container(ft.Container):
                         ],
                         spacing=0,
                     ),
-                    bgcolor=ft.colors.WHITE,
+                    bgcolor=ft.Colors.WHITE,
                     border_radius=90,
                 ),
             ],
