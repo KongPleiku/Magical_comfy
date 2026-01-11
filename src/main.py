@@ -1,6 +1,7 @@
 import flet as ft
 from loguru import logger
 from views.main_view import Main_View
+from utils.ultis import ALL_TAGS
 
 
 def main(page: ft.Page):
