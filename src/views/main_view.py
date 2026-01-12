@@ -3,6 +3,7 @@ from loguru import logger
 from components.image_component import Image_component
 from components.setting_containers import Setting_container
 from components.chat_containers import ChatBar
+from components.status_containers import Status_Container
 
 
 class Main_View(ft.View):
@@ -24,6 +25,7 @@ class Main_View(ft.View):
                         height=self.fixed_height,
                         width=self.page.width,
                     ),
+                    Status_Container(),
                     Setting_container(),
                     ChatBar(),
                 ],
