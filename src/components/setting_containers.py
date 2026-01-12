@@ -1,6 +1,7 @@
 # src/components/connection_indicator.py
 import flet as ft
 from loguru import logger
+from route import navigator
 
 
 class Setting_container(ft.Container):
@@ -16,7 +17,7 @@ class Setting_container(ft.Container):
             icon=ft.Icons.SETTINGS,
             tooltip="Settings",
             padding=0,
-            on_click=lambda e: logger.info("Settings button clicked"),
+            on_click=self._on_setting_click,
         )
 
         self.gallery_button = ft.IconButton(
@@ -50,3 +51,10 @@ class Setting_container(ft.Container):
             right=5,
             content=self.pack,
         )
+
+    def _on_setting_click(self, e):
+        logger.info("Setting button clicked")
+        navigator.go_to_settings()
+
+    def _on_gallery_click(self, e):
+        logger.info("Gallery button clicked")
