@@ -61,10 +61,9 @@ class ChatBar(ft.Container):
 
         super().__init__(
             content=self.wrapper,
-            bottom=0,
-            left=0,
-            right=0,
-            bgcolor=ft.Colors.with_opacity(0.1, ft.Colors.WHITE),
+            bottom=10,
+            left=10,
+            right=10,
         )
 
     def set_prompt(self, value: str):
