@@ -25,5 +25,11 @@ class Router(metaclass=SingletonMeta):
         else:
             logger.error("Page not set in Navigator.")
 
+    def go_to_gallery(self):
+        if self.page:
+            self.page.go("/gallery")
+        else:
+            logger.error("Page not set in Navigator.")
+
 
 navigator = Router()

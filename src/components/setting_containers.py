@@ -24,7 +24,7 @@ class Setting_container(ft.Container):
             icon=ft.Icons.IMAGE,
             tooltip="Gallery",
             padding=0,
-            on_click=lambda e: logger.info("Gallery button clicked"),
+            on_click=self._on_gallery_click,
         )
 
         self.pack = ft.Row(
@@ -58,3 +58,4 @@ class Setting_container(ft.Container):
 
     def _on_gallery_click(self, e):
         logger.info("Gallery button clicked")
+        navigator.go_to_gallery()
