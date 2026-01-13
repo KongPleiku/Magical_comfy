@@ -38,8 +38,10 @@ class Slider_Container_INT(ft.Container):
                             ft.Container(
                                 content=self.value_label,
                                 width=50,
+                                height=30,
                                 bgcolor=ft.Colors.ON_SURFACE_VARIANT,
                                 alignment=ft.alignment.center,
+                                border_radius=10,
                             ),
                         ],
                         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
