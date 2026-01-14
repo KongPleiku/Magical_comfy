@@ -31,6 +31,7 @@ class Generation_setting:
 
 @dataclass
 class Face_detailer_settings:
+    use_face_detailer: bool
     guide_size: int
     guide_size_for: bool
     last_seed: int
@@ -77,6 +78,7 @@ class Setting_services(metaclass=SingletonMeta):
         )
 
         init_face_detailer_settings = Face_detailer_settings(
+            use_face_detailer=False,
             guide_size=512,
             guide_size_for=False,
             last_seed=0,

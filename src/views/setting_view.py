@@ -76,6 +76,18 @@ class Setting_View(ft.View):
                     ),
                     ft.Text("Seed", size=18, weight="bold"),
                     ft.Divider(),
+                    ft.Row(
+                        controls=[
+                            ft.TextField(
+                                label="Seed",
+                                expand=True,
+                                value="0",
+                                border_radius=20,
+                            ),
+                            ft.IconButton(icon=ft.Icons.CASINO),
+                            ft.IconButton(icon=ft.icons.LOCK),
+                        ]
+                    ),
                 ],
                 spacing=5,
             ),
@@ -130,6 +142,30 @@ class Setting_View(ft.View):
                                 max_value=10,
                                 divisions=18,
                                 initial_value=5,
+                                is_float=True,
+                            ),
+                            Slider_Container_INT(
+                                text="Denoising Strength",
+                                min_value=0,
+                                max_value=1,
+                                divisions=20,
+                                initial_value=0.5,
+                                is_float=True,
+                            ),
+                            Slider_Container_INT(
+                                text="Face detection threshold",
+                                min_value=0,
+                                max_value=1,
+                                divisions=20,
+                                initial_value=0.8,
+                                is_float=True,
+                            ),
+                            Slider_Container_INT(
+                                text="Face detection crop factor",
+                                min_value=1,
+                                max_value=4,
+                                divisions=6,
+                                initial_value=1,
                                 is_float=True,
                             ),
                         ]
