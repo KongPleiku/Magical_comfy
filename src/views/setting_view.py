@@ -66,6 +66,12 @@ class Setting_View(ft.View):
             on_click=self._on_lock_seed_clicked
         )
 
+        self.save_image_after_generation_switch = ft.Switch(
+            label="Save image after generation",
+            value=settings_services.settings.generation.save_on_generate,
+            on_change=self._on_save_image_after_generation_switch
+        )
+
         self.generation_paramters_container = ft.Container(
             content=ft.Column(
                 controls=[
@@ -137,6 +143,7 @@ class Setting_View(ft.View):
                             self.lock_seed_button,
                         ]
                     ),
+                    self.save_image_after_generation_switch
                 ],
                 spacing=5,
             ),
@@ -190,7 +197,7 @@ class Setting_View(ft.View):
                     divisions=29,
                     initial_value=settings_services.settings.face_detailer.steps,
                     on_change=lambda e:(
-                        settings_services.set_face_detailer_value("steps", e.control.value)
+                        settings_services.set_face_detailer_value("steps", int(e.control.value))
                     )
                 ),
                 Slider_Container_INT(
@@ -296,6 +303,7 @@ class Setting_View(ft.View):
         self._init_face_detailer_setting_column()
         logger.info("Setting_View initialized.")
     
+    #INITAL FUNCTION
     def _init_lock_seed(self):
         if not self.random_seed:
             self.lock_seed_button.icon = ft.Icons.LOCK
@@ -317,6 +325,7 @@ class Setting_View(ft.View):
         
         self.page.update()
     
+    #INTERACTION FUNCTION
     def _on_lock_seed_clicked(self, e):
         if not self.random_seed:
             self.random_seed = True
@@ -353,6 +362,13 @@ class Setting_View(ft.View):
         settings_services.set_generation_value("last_seed", int(self.seed_field.value))
 
         self.page.update()
+    
+    def _on_save_image_after_generation_switch(self, e):
+        if self.save_image_after_generation_switch.value:
+            settings_services.set_generation_value("save_on_generate", True)
+        
+        else:
+            settings_services.set_generation_value("save_on_generate", False)
     
     def _on_face_detailer_switch(self, e):
         if self.face_detailer_switch.value == True:
