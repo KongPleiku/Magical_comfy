@@ -146,79 +146,105 @@ class Setting_View(ft.View):
             border_radius=20,
         )
 
+        self.face_detailer_switch = ft.Switch(
+            label="Face Detailer",
+            value=settings_services.settings.generation.use_face_detailer,
+            on_change=self._on_face_detailer_switch
+        )
+        
+        self.face_detailer_settings_column = ft.Column(
+            controls=[
+                ft.Row(
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    controls=[
+                        ft.Dropdown(
+                            label="Sampler",
+                            border_radius=20,
+                            value=settings_services.settings.face_detailer.sampler_name,
+                            options=[
+                                ft.dropdown.Option("euler_ancestral"),
+                            ],
+                            expand=True,
+                            on_change=lambda e:(
+                                settings_services.set_face_detailer_value("sampler_name", e.control.value)
+                            )
+                        ),
+                        ft.Dropdown(
+                            label="Scheduler",
+                            border_radius=20,
+                            value=settings_services.settings.face_detailer.scheduler,
+                            options=[
+                                ft.dropdown.Option("sgm_uniform"),
+                            ],
+                            expand=True,
+                            on_change=lambda e:(
+                                settings_services.set_face_detailer_value("scheduler", e.control.value)
+                            )
+                        ),
+                    ],
+                ),
+                Slider_Container_INT(
+                    text="Steps",
+                    min_value=1,
+                    max_value=30,
+                    divisions=29,
+                    initial_value=settings_services.settings.face_detailer.steps,
+                    on_change=lambda e:(
+                        settings_services.set_face_detailer_value("steps", e.control.value)
+                    )
+                ),
+                Slider_Container_INT(
+                    text="CFG",
+                    min_value=1,
+                    max_value=10,
+                    divisions=18,
+                    initial_value=settings_services.settings.face_detailer.cfg,
+                    is_float=True,
+                    on_change=lambda e:(
+                        settings_services.set_face_detailer_value("cfg", e.control.value)
+                    )
+                ),
+                Slider_Container_INT(
+                    text="Denoising Strength",
+                    min_value=0,
+                    max_value=1,
+                    divisions=20,
+                    initial_value=settings_services.settings.face_detailer.denoise,
+                    is_float=True,
+                    on_change=lambda e:(
+                        settings_services.set_face_detailer_value("denoise", e.control.value)
+                    )
+                ),
+                Slider_Container_INT(
+                    text="Face detection threshold",
+                    min_value=0,
+                    max_value=1,
+                    divisions=20,
+                    initial_value=settings_services.settings.face_detailer.bbox_threshold,
+                    is_float=True,
+                    on_change=lambda e:(
+                        settings_services.set_face_detailer_value("bbox_threshold", e.control.value)
+                    )
+                ),
+                Slider_Container_INT(
+                    text="Face detection crop factor",
+                    min_value=1,
+                    max_value=4,
+                    divisions=6,
+                    initial_value=settings_services.settings.face_detailer.bbox_crop_factor,
+                    is_float=True,
+                    on_change=lambda e:(
+                        settings_services.set_face_detailer_value("bbox_crop_factor", e.control.value)
+                    )
+                ),
+            ]
+        )
+
         self.face_detailer_container = ft.Container(
             content=ft.Column(
                 controls=[
-                    ft.Switch(
-                        label="Face Detailer",
-                        value=False,
-                    ),
-                    ft.Column(
-                        controls=[
-                            ft.Row(
-                                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                                controls=[
-                                    ft.Dropdown(
-                                        label="Sampler",
-                                        border_radius=20,
-                                        value="euler_ancestral",
-                                        options=[
-                                            ft.dropdown.Option("euler_ancestral"),
-                                        ],
-                                        expand=True,
-                                    ),
-                                    ft.Dropdown(
-                                        label="Scheduler",
-                                        border_radius=20,
-                                        value="sgm_uniform",
-                                        options=[
-                                            ft.dropdown.Option("sgm_uniform"),
-                                        ],
-                                        expand=True,
-                                    ),
-                                ],
-                            ),
-                            Slider_Container_INT(
-                                text="Steps",
-                                min_value=1,
-                                max_value=30,
-                                divisions=30,
-                                initial_value=20,
-                            ),
-                            Slider_Container_INT(
-                                text="CFG",
-                                min_value=1,
-                                max_value=10,
-                                divisions=18,
-                                initial_value=5,
-                                is_float=True,
-                            ),
-                            Slider_Container_INT(
-                                text="Denoising Strength",
-                                min_value=0,
-                                max_value=1,
-                                divisions=20,
-                                initial_value=0.5,
-                                is_float=True,
-                            ),
-                            Slider_Container_INT(
-                                text="Face detection threshold",
-                                min_value=0,
-                                max_value=1,
-                                divisions=20,
-                                initial_value=0.8,
-                                is_float=True,
-                            ),
-                            Slider_Container_INT(
-                                text="Face detection crop factor",
-                                min_value=1,
-                                max_value=4,
-                                divisions=6,
-                                initial_value=1,
-                                is_float=True,
-                            ),
-                        ]
-                    ),
+                    self.face_detailer_switch,
+                    self.face_detailer_settings_column
                 ]
             ),
             padding=10,
@@ -267,28 +293,40 @@ class Setting_View(ft.View):
         ]
 
         self._init_lock_seed()
+        self._init_face_detailer_setting_column()
         logger.info("Setting_View initialized.")
     
     def _init_lock_seed(self):
         if not self.random_seed:
-            self.lock_seed_button.icon = ft.Icons.LOCK_OPEN
+            self.lock_seed_button.icon = ft.Icons.LOCK
             self.seed_field.disabled = False
         
         else: 
-            self.lock_seed_button.icon = ft.Icons.LOCK
+            self.lock_seed_button.icon = ft.Icons.LOCK_OPEN
             self.seed_field.disabled = True
+        self.page.update()
+    
+    def _init_face_detailer_setting_column(self):
+        if not self.face_detailer_switch.value:
+            self.face_detailer_settings_column.visible = False
+            settings_services.set_generation_value("use_face_detailer", False)
+        
+        else:
+            self.face_detailer_settings_column.visible = True
+            settings_services.set_generation_value("use_face_detailer", True)
+        
         self.page.update()
     
     def _on_lock_seed_clicked(self, e):
         if not self.random_seed:
             self.random_seed = True
-            self.lock_seed_button.icon = ft.Icons.LOCK
+            self.lock_seed_button.icon = ft.Icons.LOCK_OPEN
             settings_services.set_generation_value("random_seed", True)
             self.seed_field.disabled = True
         
         else:
             self.random_seed = False
-            self.lock_seed_button.icon = ft.Icons.LOCK_OPEN
+            self.lock_seed_button.icon = ft.Icons.LOCK
             settings_services.set_generation_value("random_seed", False)
             self.seed_field.disabled = False
         
@@ -314,5 +352,16 @@ class Setting_View(ft.View):
 
         settings_services.set_generation_value("last_seed", int(self.seed_field.value))
 
+        self.page.update()
+    
+    def _on_face_detailer_switch(self, e):
+        if self.face_detailer_switch.value == True:
+            self.face_detailer_settings_column.visible = True
+            settings_services.set_generation_value("use_face_detailer", True)
+        
+        else:
+            self.face_detailer_settings_column.visible = False
+            settings_services.set_generation_value("use_face_detailer", False)
+        
         self.page.update()
 

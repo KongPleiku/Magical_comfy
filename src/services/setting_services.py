@@ -96,7 +96,7 @@ class Setting_services(metaclass=SingletonMeta):
             denoise=0.5,
             noise_mask=False,
             force_inpaint=False,
-            bbox_crop_factor=0.8,
+            bbox_crop_factor=1.5,
             bbox_threshold=0.5,
         )
 
