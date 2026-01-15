@@ -11,6 +11,10 @@ from typing import Any
 ROOT_DIR = Path(__file__).resolve().parent.parent
 storage_path = os.getenv("FLET_APP_STORAGE_DATA")
 
+@dataclass
+class Connection_setting:
+    port: str
+    host: str
 
 @dataclass
 class Generation_setting:
@@ -57,6 +61,7 @@ class Face_detailer_settings:
 class Settings:
     generation: Generation_setting
     face_detailer: Face_detailer_settings
+    connection: Connection_setting
 
 
 class Setting_services(metaclass=SingletonMeta):
@@ -70,6 +75,11 @@ class Setting_services(metaclass=SingletonMeta):
         logger.info("Setting_services initialized.")
 
     def _init_configs(self):
+        init_connection_settings = Connection_setting(
+            port="192.168.1.1",
+            host="8188"
+        )
+
         init_generation_settings = Generation_setting(
             use_face_detailer=False,
             model_name="WAI_ANI_Q8_0.gguf",
@@ -103,6 +113,7 @@ class Setting_services(metaclass=SingletonMeta):
         self.settings = Settings(
             generation=init_generation_settings,
             face_detailer=init_face_detailer_settings,
+            connection=init_connection_settings
         )
 
         temp_dict = asdict(self.settings)
