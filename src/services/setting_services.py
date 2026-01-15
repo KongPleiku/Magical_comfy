@@ -11,10 +11,12 @@ from typing import Any
 ROOT_DIR = Path(__file__).resolve().parent.parent
 storage_path = os.getenv("FLET_APP_STORAGE_DATA")
 
+
 @dataclass
 class Connection_setting:
     port: str
     host: str
+
 
 @dataclass
 class Generation_setting:
@@ -75,10 +77,7 @@ class Setting_services(metaclass=SingletonMeta):
         logger.info("Setting_services initialized.")
 
     def _init_configs(self):
-        init_connection_settings = Connection_setting(
-            port="192.168.1.1",
-            host="8188"
-        )
+        init_connection_settings = Connection_setting(port="192.168.1.1", host="8188")
 
         init_generation_settings = Generation_setting(
             use_face_detailer=False,
@@ -113,7 +112,7 @@ class Setting_services(metaclass=SingletonMeta):
         self.settings = Settings(
             generation=init_generation_settings,
             face_detailer=init_face_detailer_settings,
-            connection=init_connection_settings
+            connection=init_connection_settings,
         )
 
         temp_dict = asdict(self.settings)
@@ -142,7 +141,7 @@ class Setting_services(metaclass=SingletonMeta):
             logger.info(f"Saved configs to {self.configs_path}")
         except:
             logger.error(f"Error while saving configs to {self.configs_path}")
-    
+
     def set_generation_value(self, key: str, value: Any):
         """
         Sets a single value in Generation settings by key name.
@@ -179,5 +178,18 @@ class Setting_services(metaclass=SingletonMeta):
         Gets a single value from Face Detailer settings.
         """
         return getattr(self.settings.face_detailer, key, None)
+
+    def set_connection_settings(self, key: str, value: Any):
+        """
+        Sets a single value in Connection settings by key name.
+        Example: set_connection_settings("port", 8188)
+        """
+        if hasattr(self.settings.connection, key):
+            setattr(self.settings.connection, key, value)
+            self.save_configs()
+            logger.info(f"Updated Connection [{key}] to {value}")
+        else:
+            logger.error(f"Connection setting '{key}' does not exist.")
+
 
 settings_services = Setting_services()

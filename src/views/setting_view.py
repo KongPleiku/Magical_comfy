@@ -2,7 +2,7 @@ import flet as ft
 from loguru import logger
 from components.value_slider_containers import Slider_Container_INT
 from services.setting_services import settings_services
-import random 
+import random
 
 
 class Setting_View(ft.View):
@@ -17,7 +17,7 @@ class Setting_View(ft.View):
         self.page = page
         self.random_seed = settings_services.settings.generation.random_seed
 
-        #WIDTH FIELD
+        # WIDTH FIELD
         self.width_text_field = ft.TextField(
             label="Width",
             expand=True,
@@ -25,10 +25,10 @@ class Setting_View(ft.View):
             border_radius=20,
             on_change=lambda e: (
                 settings_services.set_generation_value("width", int(e.control.value)),
-            )
+            ),
         )
 
-        #HEIHGT_FIELD
+        # HEIHGT_FIELD
         self.height_text_field = ft.TextField(
             label="Height",
             expand=True,
@@ -36,40 +36,39 @@ class Setting_View(ft.View):
             border_radius=20,
             on_change=lambda e: (
                 settings_services.set_generation_value("height", int(e.control.value)),
-            )
+            ),
         )
 
-        #SWAP BUTTON
+        # SWAP BUTTON
         self.swap_heigth_and_width_button = ft.IconButton(
-            icon=ft.Icons.SWAP_HORIZ,
-            on_click=self._on_swap_button_clicked
+            icon=ft.Icons.SWAP_HORIZ, on_click=self._on_swap_button_clicked
         )
 
-        #SEED_FIELD
+        # SEED_FIELD
         self.seed_field = ft.TextField(
             label="Seed",
             expand=True,
             value=settings_services.settings.generation.last_seed,
             border_radius=20,
             on_change=lambda e: (
-                settings_services.set_generation_value("last_seed", int(e.control.value))
+                settings_services.set_generation_value(
+                    "last_seed", int(e.control.value)
+                )
             ),
         )
 
         self.random_seed_button = ft.IconButton(
-            icon=ft.Icons.CASINO,
-            on_click=self._on_random_seed_clicked
+            icon=ft.Icons.CASINO, on_click=self._on_random_seed_clicked
         )
 
         self.lock_seed_button = ft.IconButton(
-            icon=ft.Icons.LOCK,
-            on_click=self._on_lock_seed_clicked
+            icon=ft.Icons.LOCK, on_click=self._on_lock_seed_clicked
         )
 
         self.save_image_after_generation_switch = ft.Switch(
             label="Save image after generation",
             value=settings_services.settings.generation.save_on_generate,
-            on_change=self._on_save_image_after_generation_switch
+            on_change=self._on_save_image_after_generation_switch,
         )
 
         self.generation_paramters_container = ft.Container(
@@ -90,9 +89,11 @@ class Setting_View(ft.View):
                         max_value=30,
                         divisions=29,
                         initial_value=settings_services.settings.generation.steps,
-                        on_change=lambda e:(
-                            settings_services.set_generation_value("steps", int(e.control.value))
-                        )
+                        on_change=lambda e: (
+                            settings_services.set_generation_value(
+                                "steps", int(e.control.value)
+                            )
+                        ),
                     ),
                     Slider_Container_INT(
                         text="CFG",
@@ -102,8 +103,10 @@ class Setting_View(ft.View):
                         initial_value=settings_services.settings.generation.cfg,
                         is_float=True,
                         on_change=lambda e: (
-                            settings_services.set_generation_value("cfg", e.control.value)
-                        )
+                            settings_services.set_generation_value(
+                                "cfg", e.control.value
+                            )
+                        ),
                     ),
                     ft.Row(
                         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
@@ -117,8 +120,10 @@ class Setting_View(ft.View):
                                 ],
                                 expand=True,
                                 on_change=lambda e: (
-                                    settings_services.set_generation_value("sampler_name", e.control.value)
-                                )
+                                    settings_services.set_generation_value(
+                                        "sampler_name", e.control.value
+                                    )
+                                ),
                             ),
                             ft.Dropdown(
                                 label="Scheduler",
@@ -129,8 +134,10 @@ class Setting_View(ft.View):
                                 ],
                                 expand=True,
                                 on_change=lambda e: (
-                                    settings_services.set_generation_value("scheduler", e.control.value)
-                                )
+                                    settings_services.set_generation_value(
+                                        "scheduler", e.control.value
+                                    )
+                                ),
                             ),
                         ],
                     ),
@@ -143,7 +150,7 @@ class Setting_View(ft.View):
                             self.lock_seed_button,
                         ]
                     ),
-                    self.save_image_after_generation_switch
+                    self.save_image_after_generation_switch,
                 ],
                 spacing=5,
             ),
@@ -156,9 +163,9 @@ class Setting_View(ft.View):
         self.face_detailer_switch = ft.Switch(
             label="Face Detailer",
             value=settings_services.settings.generation.use_face_detailer,
-            on_change=self._on_face_detailer_switch
+            on_change=self._on_face_detailer_switch,
         )
-        
+
         self.face_detailer_settings_column = ft.Column(
             controls=[
                 ft.Row(
@@ -172,9 +179,11 @@ class Setting_View(ft.View):
                                 ft.dropdown.Option("euler_ancestral"),
                             ],
                             expand=True,
-                            on_change=lambda e:(
-                                settings_services.set_face_detailer_value("sampler_name", e.control.value)
-                            )
+                            on_change=lambda e: (
+                                settings_services.set_face_detailer_value(
+                                    "sampler_name", e.control.value
+                                )
+                            ),
                         ),
                         ft.Dropdown(
                             label="Scheduler",
@@ -184,9 +193,11 @@ class Setting_View(ft.View):
                                 ft.dropdown.Option("sgm_uniform"),
                             ],
                             expand=True,
-                            on_change=lambda e:(
-                                settings_services.set_face_detailer_value("scheduler", e.control.value)
-                            )
+                            on_change=lambda e: (
+                                settings_services.set_face_detailer_value(
+                                    "scheduler", e.control.value
+                                )
+                            ),
                         ),
                     ],
                 ),
@@ -196,9 +207,11 @@ class Setting_View(ft.View):
                     max_value=30,
                     divisions=29,
                     initial_value=settings_services.settings.face_detailer.steps,
-                    on_change=lambda e:(
-                        settings_services.set_face_detailer_value("steps", int(e.control.value))
-                    )
+                    on_change=lambda e: (
+                        settings_services.set_face_detailer_value(
+                            "steps", int(e.control.value)
+                        )
+                    ),
                 ),
                 Slider_Container_INT(
                     text="CFG",
@@ -207,9 +220,11 @@ class Setting_View(ft.View):
                     divisions=18,
                     initial_value=settings_services.settings.face_detailer.cfg,
                     is_float=True,
-                    on_change=lambda e:(
-                        settings_services.set_face_detailer_value("cfg", e.control.value)
-                    )
+                    on_change=lambda e: (
+                        settings_services.set_face_detailer_value(
+                            "cfg", e.control.value
+                        )
+                    ),
                 ),
                 Slider_Container_INT(
                     text="Denoising Strength",
@@ -218,9 +233,11 @@ class Setting_View(ft.View):
                     divisions=20,
                     initial_value=settings_services.settings.face_detailer.denoise,
                     is_float=True,
-                    on_change=lambda e:(
-                        settings_services.set_face_detailer_value("denoise", e.control.value)
-                    )
+                    on_change=lambda e: (
+                        settings_services.set_face_detailer_value(
+                            "denoise", e.control.value
+                        )
+                    ),
                 ),
                 Slider_Container_INT(
                     text="Face detection threshold",
@@ -229,9 +246,11 @@ class Setting_View(ft.View):
                     divisions=20,
                     initial_value=settings_services.settings.face_detailer.bbox_threshold,
                     is_float=True,
-                    on_change=lambda e:(
-                        settings_services.set_face_detailer_value("bbox_threshold", e.control.value)
-                    )
+                    on_change=lambda e: (
+                        settings_services.set_face_detailer_value(
+                            "bbox_threshold", e.control.value
+                        )
+                    ),
                 ),
                 Slider_Container_INT(
                     text="Face detection crop factor",
@@ -240,19 +259,67 @@ class Setting_View(ft.View):
                     divisions=6,
                     initial_value=settings_services.settings.face_detailer.bbox_crop_factor,
                     is_float=True,
-                    on_change=lambda e:(
-                        settings_services.set_face_detailer_value("bbox_crop_factor", e.control.value)
-                    )
+                    on_change=lambda e: (
+                        settings_services.set_face_detailer_value(
+                            "bbox_crop_factor", e.control.value
+                        )
+                    ),
                 ),
             ]
         )
 
-        self.face_detailer_container = ft.Container(
+        self.Host_section = ft.TextField(
+            label="Host",
+            expand=True,
+            value=settings_services.settings.connection.host,
+            border_radius=20,
+            on_change=lambda e: (
+                settings_services.set_connection_value("host", e.control.value)
+            ),
+        )
+
+        self.Port_section = ft.TextField(
+            label="Port",
+            expand=True,
+            value=settings_services.settings.connection.port,
+            border_radius=20,
+            on_change=lambda e: (
+                settings_services.set_connection_value("port", e.control.value)
+            ),
+        )
+
+        self.Connect_button = ft.Button(
+            text="Connect",
+        )
+
+        self.Connection_string = ft.Text(
+            value="Disconnected", size=18, weight="bold", color=ft.colors.RED
+        )
+
+        self.connection_container = ft.Container(
             content=ft.Column(
                 controls=[
-                    self.face_detailer_switch,
-                    self.face_detailer_settings_column
+                    ft.Text("Connection", size=18, weight="bold"),
+                    ft.Divider(),
+                    ft.Row(
+                        controls=[
+                            self.Port_section,
+                            self.Host_section,
+                        ]
+                    ),
+                    self.Connect_button,
+                    self.Connection_string,
                 ]
+            ),
+            padding=10,
+            margin=10,
+            bgcolor=ft.colors.SURFACE_VARIANT,
+            border_radius=20,
+        )
+
+        self.face_detailer_container = ft.Container(
+            content=ft.Column(
+                controls=[self.face_detailer_switch, self.face_detailer_settings_column]
             ),
             padding=10,
             margin=10,
@@ -267,12 +334,12 @@ class Setting_View(ft.View):
                     self.generation_paramters_container,
                     self.face_detailer_container,
                 ],
-                scroll=ft.ScrollMode.AUTO
-            )
+                scroll=ft.ScrollMode.AUTO,
+            ),
         )
 
         self.connection_settings_tab = ft.Tab(
-            text="Connection",
+            text="Connection", content=self.connection_container
         )
 
         self.Tabs = ft.Tabs(
@@ -280,10 +347,7 @@ class Setting_View(ft.View):
             animation_duration=300,
             expand=True,
             scrollable=True,
-            tabs=[
-                self.generation_settings_tab,
-                self.connection_settings_tab
-            ],
+            tabs=[self.generation_settings_tab, self.connection_settings_tab],
         )
         self.controls = [
             ft.AppBar(
@@ -309,59 +373,63 @@ class Setting_View(ft.View):
         self._init_lock_seed()
         self._init_face_detailer_setting_column()
         logger.info("Setting_View initialized.")
-    
-    #INITAL FUNCTION
+
+    # INITAL FUNCTION
     def _init_lock_seed(self):
         if not self.random_seed:
             self.lock_seed_button.icon = ft.Icons.LOCK
             self.seed_field.disabled = False
-        
-        else: 
+
+        else:
             self.lock_seed_button.icon = ft.Icons.LOCK_OPEN
             self.seed_field.disabled = True
         self.page.update()
-    
+
     def _init_face_detailer_setting_column(self):
         if not self.face_detailer_switch.value:
             self.face_detailer_settings_column.visible = False
             settings_services.set_generation_value("use_face_detailer", False)
-        
+
         else:
             self.face_detailer_settings_column.visible = True
             settings_services.set_generation_value("use_face_detailer", True)
-        
+
         self.page.update()
-    
-    #INTERACTION FUNCTION
+
+    # INTERACTION FUNCTION
     def _on_lock_seed_clicked(self, e):
         if not self.random_seed:
             self.random_seed = True
             self.lock_seed_button.icon = ft.Icons.LOCK_OPEN
             settings_services.set_generation_value("random_seed", True)
             self.seed_field.disabled = True
-        
+
         else:
             self.random_seed = False
             self.lock_seed_button.icon = ft.Icons.LOCK
             settings_services.set_generation_value("random_seed", False)
             self.seed_field.disabled = False
-        
+
         self.page.update()
 
     def _go_to_main(self, e):
         self.page.go("/main")
         settings_services.save_configs()
-    
+
     def _on_swap_button_clicked(self, e):
         temp = self.height_text_field.value
         self.height_text_field.value = self.width_text_field.value
         self.width_text_field.value = temp
 
-        settings_services.set_generation_value("width", int(self.width_text_field.value))
-        settings_services.set_generation_value("height", int(self.height_text_field.value))
+        settings_services.set_generation_value(
+            "width", int(self.width_text_field.value)
+        )
+        settings_services.set_generation_value(
+            "height", int(self.height_text_field.value)
+        )
 
         self.page.update()
-    
+
     def _on_random_seed_clicked(self, e):
         random_seed = random.randint(0, 2**32 - 1)
         self.seed_field.value = random_seed
@@ -369,22 +437,21 @@ class Setting_View(ft.View):
         settings_services.set_generation_value("last_seed", int(self.seed_field.value))
 
         self.page.update()
-    
+
     def _on_save_image_after_generation_switch(self, e):
         if self.save_image_after_generation_switch.value:
             settings_services.set_generation_value("save_on_generate", True)
-        
+
         else:
             settings_services.set_generation_value("save_on_generate", False)
-    
+
     def _on_face_detailer_switch(self, e):
         if self.face_detailer_switch.value == True:
             self.face_detailer_settings_column.visible = True
             settings_services.set_generation_value("use_face_detailer", True)
-        
+
         else:
             self.face_detailer_settings_column.visible = False
             settings_services.set_generation_value("use_face_detailer", False)
-        
-        self.page.update()
 
+        self.page.update()
