@@ -17,7 +17,7 @@ class ChatBar(ft.Container):
         self.cursor_position = 0
         self.last_value = ""
 
-        self.on_generate = False
+        self.on_generate = True
 
         self.prompt_field = ft.TextField(
             hint_text="Describe your image...",

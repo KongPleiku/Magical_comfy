@@ -260,22 +260,29 @@ class Setting_View(ft.View):
             border_radius=20,
         )
 
+        self.generation_settings_tab = ft.Tab(
+            text="Generation",
+            content=ft.Column(
+                controls=[
+                    self.generation_paramters_container,
+                    self.face_detailer_container,
+                ],
+                scroll=ft.ScrollMode.AUTO
+            )
+        )
+
+        self.connection_settings_tab = ft.Tab(
+            text="Connection",
+        )
+
         self.Tabs = ft.Tabs(
             selected_index=0,
             animation_duration=300,
             expand=True,
             scrollable=True,
             tabs=[
-                ft.Tab(
-                    text="Generation",
-                    content=ft.Column(
-                        controls=[
-                            self.generation_paramters_container,
-                            self.face_detailer_container,
-                        ],
-                        scroll=ft.ScrollMode.AUTO,
-                    ),
-                ),
+                self.generation_settings_tab,
+                self.connection_settings_tab
             ],
         )
         self.controls = [
