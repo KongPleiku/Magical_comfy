@@ -77,7 +77,7 @@ class Setting_services(metaclass=SingletonMeta):
         logger.info("Setting_services initialized.")
 
     def _init_configs(self):
-        init_connection_settings = Connection_setting(port="192.168.1.1", host="8188")
+        init_connection_settings = Connection_setting(host="192.168.1.1", port="8188")
 
         init_generation_settings = Generation_setting(
             use_face_detailer=False,

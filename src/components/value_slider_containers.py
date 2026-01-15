@@ -11,7 +11,7 @@ class Slider_Container_INT(ft.Container):
         divisions: int,
         initial_value: int,
         is_float: bool = False,
-        on_change = None
+        on_change=None,
     ):
         self.on_change = on_change
         self.is_float = is_float
@@ -41,7 +41,7 @@ class Slider_Container_INT(ft.Container):
                                 content=self.value_label,
                                 width=50,
                                 height=30,
-                                bgcolor=ft.Colors.ON_SURFACE_VARIANT,
+                                bgcolor=ft.Colors.GREY_900,
                                 alignment=ft.alignment.center,
                                 border_radius=10,
                             ),

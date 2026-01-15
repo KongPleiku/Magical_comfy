@@ -2,7 +2,9 @@ import flet as ft
 from loguru import logger
 from components.value_slider_containers import Slider_Container_INT
 from services.setting_services import settings_services
+from services.client_services import client
 import random
+import asyncio
 
 
 class Setting_View(ft.View):
@@ -156,7 +158,7 @@ class Setting_View(ft.View):
             ),
             padding=10,
             margin=10,
-            bgcolor=ft.colors.SURFACE_VARIANT,
+            bgcolor=ft.Colors.GREY_800,
             border_radius=20,
         )
 
@@ -290,10 +292,12 @@ class Setting_View(ft.View):
 
         self.Connect_button = ft.Button(
             text="Connect",
+            on_click=self._on_connect_button_clicked,
+            bgcolor=ft.Colors.GREY_800,
         )
 
         self.Connection_string = ft.Text(
-            value="Disconnected", size=18, weight="bold", color=ft.colors.RED
+            value="Disconnected", size=18, weight="bold", color=ft.Colors.RED
         )
 
         self.connection_container = ft.Container(
@@ -303,8 +307,8 @@ class Setting_View(ft.View):
                     ft.Divider(),
                     ft.Row(
                         controls=[
-                            self.Port_section,
                             self.Host_section,
+                            self.Port_section,
                         ]
                     ),
                     self.Connect_button,
@@ -313,7 +317,7 @@ class Setting_View(ft.View):
             ),
             padding=10,
             margin=10,
-            bgcolor=ft.colors.SURFACE_VARIANT,
+            bgcolor=ft.Colors.GREY_800,
             border_radius=20,
         )
 
@@ -323,7 +327,7 @@ class Setting_View(ft.View):
             ),
             padding=10,
             margin=10,
-            bgcolor=ft.colors.SURFACE_VARIANT,
+            bgcolor=ft.Colors.GREY_800,
             border_radius=20,
         )
 
@@ -365,13 +369,15 @@ class Setting_View(ft.View):
                         on_click=self._go_to_main,
                     )
                 ],
-                bgcolor=ft.colors.SURFACE_VARIANT,
+                bgcolor=ft.Colors.GREY_800,
             ),
             self.Tabs,
         ]
 
         self._init_lock_seed()
         self._init_face_detailer_setting_column()
+        self._init_connection_settings()
+
         logger.info("Setting_View initialized.")
 
     # INITAL FUNCTION
@@ -393,6 +399,20 @@ class Setting_View(ft.View):
         else:
             self.face_detailer_settings_column.visible = True
             settings_services.set_generation_value("use_face_detailer", True)
+
+        self.page.update()
+
+    def _init_connection_settings(self):
+        self.Host_section.value = settings_services.settings.connection.host
+        self.Port_section.value = settings_services.settings.connection.port
+
+        if client.connected:
+            self.Connection_string.value = "Connected"
+            self.Connection_string.color = ft.Colors.GREEN
+
+        else:
+            self.Connection_string.value = "Disconnected"
+            self.Connection_string.color = ft.Colors.RED
 
         self.page.update()
 
@@ -455,3 +475,16 @@ class Setting_View(ft.View):
             settings_services.set_generation_value("use_face_detailer", False)
 
         self.page.update()
+
+    def _on_connect_button_clicked(self, e):
+        asyncio.run(client.check_connection())
+        if client.connected:
+            self.Connection_string.value = "Connected"
+            self.Connection_string.color = ft.Colors.GREEN
+
+        else:
+            self.Connection_string.value = "Disconnected"
+            self.Connection_string.color = ft.colors.RED
+
+        self.page.update()
+        settings_services.save_configs()
