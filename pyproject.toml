@@ -10,6 +10,7 @@ dependencies = [
   "loguru>=0.7.3",
   "pip>=25.0.1",
   "pre-commit>=3.5.0",
+  "websocket-client>=1.8.0",
 ]
 
 
