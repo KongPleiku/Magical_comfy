@@ -6,6 +6,7 @@ import os
 import json
 from dacite import from_dict
 from pathlib import Path
+from typing import Any
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 storage_path = os.getenv("FLET_APP_STORAGE_DATA")
@@ -15,7 +16,10 @@ storage_path = os.getenv("FLET_APP_STORAGE_DATA")
 class Generation_setting:
     # Basic Generation
     model_name: str
+
     last_seed: int
+    random_seed: bool
+
     steps: int
     cfg: float
     sampler_name: str
@@ -27,6 +31,7 @@ class Generation_setting:
 
     # Saving option
     save_on_generate: bool
+    use_face_detailer: bool
 
 
 @dataclass
@@ -66,8 +71,10 @@ class Setting_services(metaclass=SingletonMeta):
 
     def _init_configs(self):
         init_generation_settings = Generation_setting(
+            use_face_detailer=False,
             model_name="WAI_ANI_Q8_0.gguf",
             last_seed=0,
+            random_seed=False,
             steps=20,
             cfg=3.5,
             sampler_name="euler_ancestral",
@@ -124,6 +131,42 @@ class Setting_services(metaclass=SingletonMeta):
             logger.info(f"Saved configs to {self.configs_path}")
         except:
             logger.error(f"Error while saving configs to {self.configs_path}")
+    
+    def set_generation_value(self, key: str, value: Any):
+        """
+        Sets a single value in Generation settings by key name.
+        Example: set_generation_value("width", 1024)
+        """
+        if hasattr(self.settings.generation, key):
+            # Optional: Add type validation here if needed
+            setattr(self.settings.generation, key, value)
+            self.save_configs()
+            logger.info(f"Updated Generation [{key}] to {value}")
+        else:
+            logger.error(f"Generation setting '{key}' does not exist.")
 
+    def get_generation_value(self, key: str) -> Any:
+        """
+        Gets a single value from Generation settings.
+        """
+        return getattr(self.settings.generation, key, None)
+
+    def set_face_detailer_value(self, key: str, value: Any):
+        """
+        Sets a single value in Face Detailer settings by key name.
+        Example: set_face_detailer_value("bbox_threshold", 0.6)
+        """
+        if hasattr(self.settings.face_detailer, key):
+            setattr(self.settings.face_detailer, key, value)
+            self.save_configs()
+            logger.info(f"Updated Face Detailer [{key}] to {value}")
+        else:
+            logger.error(f"Face Detailer setting '{key}' does not exist.")
+
+    def get_face_detailer_value(self, key: str) -> Any:
+        """
+        Gets a single value from Face Detailer settings.
+        """
+        return getattr(self.settings.face_detailer, key, None)
 
 settings_services = Setting_services()

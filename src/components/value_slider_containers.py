@@ -11,7 +11,9 @@ class Slider_Container_INT(ft.Container):
         divisions: int,
         initial_value: int,
         is_float: bool = False,
+        on_change = None
     ):
+        self.on_change = on_change
         self.is_float = is_float
         self.text_label = ft.Text(text, expand=True)
         self.value_label = ft.Text(
@@ -55,6 +57,9 @@ class Slider_Container_INT(ft.Container):
         super().__init__(content=self.container)
 
     def _on_slider_change(self, e):
+        if self.on_change:
+            self.on_change(e)
+
         if self.is_float:
             self.value_label.value = str(e.control.value)
         else:
