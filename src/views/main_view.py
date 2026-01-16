@@ -21,7 +21,7 @@ class Main_View(ft.View):
             ft.Stack(
                 controls=[
                     ft.Container(
-                        content=Image_component(),
+                        content=Image_component(self.page),
                         height=self.fixed_height,
                         width=self.page.width,
                     ),

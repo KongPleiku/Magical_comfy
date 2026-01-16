@@ -1,5 +1,6 @@
 from utils.singleton import SingletonMeta
 from utils.ultis import API_JSON
+from utils.event_bus import event_bus
 
 from services.client_services import client
 from services.setting_services import settings_services
@@ -54,7 +55,7 @@ class GenerationService:
         face_detailer_inputs["bbox_threshold"] = detailer_settings.bbox_threshold
         face_detailer_inputs["bbox_crop_factor"] = detailer_settings.bbox_crop_factor
 
-    def generate(self, prompt: str, binary_callback: Callable[[bytes], None] = None):
+    def generate(self, prompt: str):
         """Generates an image based on the provided prompt and waits for completion."""
         # Ensure websocket is connected and client_id is up-to-date
         if not client.websocket_client or not client.websocket_client.connected:
@@ -80,11 +81,9 @@ class GenerationService:
             return None
 
         logger.info(f"Prompt ID received: {prompt_id}. Waiting for completion...")
-        return self._wait_for_completion(prompt_id, binary_callback=binary_callback)
+        return self._wait_for_completion(prompt_id)
 
-    def _wait_for_completion(
-        self, prompt_id: str, binary_callback: Callable[[bytes], None] = None
-    ):
+    def _wait_for_completion(self, prompt_id: str):
         """Waits for the image generation to complete via WebSocket."""
         if not client.websocket_client or not client.websocket_client.connected:
             logger.error(
@@ -92,21 +91,15 @@ class GenerationService:
             )
             return None
 
-        # Set a timeout for receiving messages to prevent indefinite blocking
-        # This is a workaround to ensure the thread eventually terminates
-        # if the websocket connection becomes unresponsive.
         timeout_seconds = 20
         client.websocket_client.settimeout(timeout_seconds)
 
         while True:
             try:
-                # Use a small timeout for recv to periodically check status or break loop
                 message = client.websocket_client.recv()
 
                 if isinstance(message, bytes):
-                    logger.debug("Received binary WebSocket message.")
-                    if binary_callback:
-                        binary_callback(message)
+                    event_bus.publish("preview_image_received", image_data=message)
                     continue
 
                 message_data = json.loads(message)
@@ -119,6 +112,7 @@ class GenerationService:
                     logger.info(
                         f"Image generation completed for prompt ID: {prompt_id} (Type: {msg_type})"
                     )
+                    # Potentially publish final image data here
                     return message_data.get("data", {}).get("output")
 
                 elif msg_type == "execution_success":

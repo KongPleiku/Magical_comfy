@@ -99,18 +99,13 @@ class ChatBar(ft.Container):
         try:
             # We pass the binary_callback to the generate function
             # so we can process the binary data from the websocket
-            GenerationService().generate(
-                prompt=prompt, binary_callback=self.on_binary_message
-            )
+            GenerationService().generate(prompt=prompt)
             logger.info("Generation finished successfully.")
         except Exception as e:
             logger.error(f"An error occurred during generation: {e}")
         finally:
             # When generation is done (or cancelled/failed), reset the UI
             self._reset_ui_to_idle()
-
-    def on_binary_message(self, data: bytes):
-        logger.info(f"Received binary data: {len(data)} bytes")
 
     def _reset_ui_to_idle(self):
         """Safely reset UI elements to idle state from any thread."""
