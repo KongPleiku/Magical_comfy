@@ -57,7 +57,7 @@ class GenerationService:
     def generate(self, prompt: str, binary_callback: Callable[[bytes], None] = None):
         """Generates an image based on the provided prompt and waits for completion."""
         # Ensure websocket is connected and client_id is up-to-date
-        if not client.websocket_client.connected:
+        if not client.websocket_client or not client.websocket_client.connected:
             client._create_websocket_connection()
 
         self.payload["client_id"] = str(client.current_client_id)
@@ -86,14 +86,21 @@ class GenerationService:
         self, prompt_id: str, binary_callback: Callable[[bytes], None] = None
     ):
         """Waits for the image generation to complete via WebSocket."""
-        if not client.websocket_client.connected:
+        if not client.websocket_client or not client.websocket_client.connected:
             logger.error(
                 "WebSocket client is not connected at the start of _wait_for_completion."
             )
             return None
 
+        # Set a timeout for receiving messages to prevent indefinite blocking
+        # This is a workaround to ensure the thread eventually terminates
+        # if the websocket connection becomes unresponsive.
+        timeout_seconds = 20
+        client.websocket_client.settimeout(timeout_seconds)
+
         while True:
             try:
+                # Use a small timeout for recv to periodically check status or break loop
                 message = client.websocket_client.recv()
 
                 if isinstance(message, bytes):
@@ -103,27 +110,38 @@ class GenerationService:
                     continue
 
                 message_data = json.loads(message)
+                msg_type = message_data.get("type")
 
                 if (
-                    message_data.get("type") == "executed"
-                    and message_data.get("prompt_id") == prompt_id
+                    msg_type == "executed"
+                    and message_data.get("data", {}).get("prompt_id") == prompt_id
                 ):
                     logger.info(
-                        f"Image generation completed for prompt ID: {prompt_id}"
+                        f"Image generation completed for prompt ID: {prompt_id} (Type: {msg_type})"
                     )
-                    return message_data.get("output")
-                elif message_data.get("type") == "progress":
+                    return message_data.get("data", {}).get("output")
+
+                elif msg_type == "execution_success":
+                    logger.info(
+                        f"[DEBUG] Received execution_success message. Data: {message_data}"
+                    )
+                    logger.info(f"[DEBUG] Currently waiting for prompt_id: {prompt_id}")
+
+                elif msg_type == "progress":
                     logger.debug(f"Generation progress: {message_data.get('data')}")
-                elif message_data.get("type") == "status":
+                elif msg_type == "status":
                     logger.debug(f"Queue status: {message_data.get('data')}")
                 else:
-                    logger.debug(
-                        f"Received WebSocket message: {message_data.get('type')}"
-                    )
+                    logger.debug(f"Received other WebSocket message: {msg_type}")
 
             except websocket.WebSocketConnectionClosedException:
                 logger.error(
                     "WebSocket connection closed unexpectedly during generation. Aborting."
+                )
+                return None
+            except websocket.WebSocketTimeoutException:
+                logger.warning(
+                    f"WebSocket message reception timed out after {timeout_seconds} seconds. Aborting."
                 )
                 return None
             except json.JSONDecodeError:

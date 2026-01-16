@@ -72,6 +72,9 @@ class ChatBar(ft.Container):
 
     def _on_send_click(self, e):
         if self.state == "IDLE":
+            # Close any existing connection to force a new client_id
+            client.close_websocket()
+
             self.state = "GENERATING"
             self.action_button.icon = ft.Icons.CLOSE
             self.action_button.icon_color = ft.Colors.RED
