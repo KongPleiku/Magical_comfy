@@ -2,12 +2,21 @@ import flet as ft
 from utils.ultis import ALL_TAGS
 from loguru import logger
 import re
+import threading
 
 from services.generation_services import GenerationService
+from services.client_services import client
 
 
 class ChatBar(ft.Container):
     def __init__(self):
+        super().__init__(
+            bottom=10,
+            left=10,
+            right=10,
+        )
+        self.state = "IDLE"  # "IDLE" or "GENERATING"
+
         self.action_button = ft.IconButton(
             icon=ft.Icons.SEND,
             icon_color=ft.Colors.WHITE,
@@ -18,8 +27,6 @@ class ChatBar(ft.Container):
         # Current_State
         self.cursor_position = 0
         self.last_value = ""
-
-        self.on_generate = True
 
         self.prompt_field = ft.TextField(
             hint_text="Describe your image...",
@@ -36,21 +43,17 @@ class ChatBar(ft.Container):
         )
 
         self.suggestion_list = ft.ListView(spacing=0, padding=0)
-        # Temparory add suggestion view
         self.suggestion_container = ft.Container(
             content=self.suggestion_list,
             bgcolor=ft.Colors.GREY_900,
             border_radius=15,
-            height=0,  # Change this to 0 to hide
-            opacity=0,  # Change this to 0 to hide
+            height=0,
+            opacity=0,
             animate=ft.animation.Animation(200, ft.AnimationCurve.EASE_OUT),
             animate_opacity=200,
             margin=ft.margin.only(bottom=10, left=10, right=10),
         )
 
-        # Removed 'expand=True' from Row.
-        # The TextField already has 'expand=True', so it will take up
-        # all available horizontal space inside the bar.
         self.prompt_section = ft.Row(
             controls=[self.prompt_field, self.action_button],
         )
@@ -60,13 +63,7 @@ class ChatBar(ft.Container):
             expand=True,
             spacing=0,
         )
-
-        super().__init__(
-            content=self.wrapper,
-            bottom=10,
-            left=10,
-            right=10,
-        )
+        self.content = self.wrapper
 
     def set_prompt(self, value: str):
         self.prompt_field.value = value
@@ -74,26 +71,58 @@ class ChatBar(ft.Container):
         self.update()
 
     def _on_send_click(self, e):
-
-        if self.on_generate:
-            logger.info(f"On Generate")
-
+        if self.state == "IDLE":
+            self.state = "GENERATING"
             self.action_button.icon = ft.Icons.CLOSE
             self.action_button.icon_color = ft.Colors.RED
+            self.prompt_field.read_only = True
+            self.update()
 
             prompt = self.prompt_field.value
-            logger.info(f"Generating image width: {prompt}")
-            GenerationService().generate(prompt=prompt)
+            logger.info(f"Starting generation for prompt: {prompt}")
 
-        else:
-            logger.info(f"On Cancellation")
-            self.action_button.icon = ft.Icons.SEND
-            self.action_button.icon_color = ft.Colors.WHITE
+            # Run generation in a separate thread
+            thread = threading.Thread(target=self._run_generation, args=(prompt,))
+            thread.start()
 
-        self.on_generate = not self.on_generate
+        elif self.state == "GENERATING":
+            logger.info("Sending cancellation request and closing websocket.")
+            client.cancel_generation()
+            client.close_websocket()
+            # The _run_generation thread will now catch the exception and handle resetting the UI
+
+    def _run_generation(self, prompt):
+        """This function runs in a separate thread."""
+        try:
+            # We pass the binary_callback to the generate function
+            # so we can process the binary data from the websocket
+            GenerationService().generate(
+                prompt=prompt, binary_callback=self.on_binary_message
+            )
+            logger.info("Generation finished successfully.")
+        except Exception as e:
+            logger.error(f"An error occurred during generation: {e}")
+        finally:
+            # When generation is done (or cancelled/failed), reset the UI
+            self._reset_ui_to_idle()
+
+    def on_binary_message(self, data: bytes):
+        logger.info(f"Received binary data: {len(data)} bytes")
+
+    def _reset_ui_to_idle(self):
+        """Safely reset UI elements to idle state from any thread."""
+        self.state = "IDLE"
+        self.action_button.icon = ft.Icons.SEND
+        self.action_button.icon_color = ft.Colors.WHITE
+        self.prompt_field.read_only = False
         self.update()
+        logger.info("UI reset to idle state.")
 
     # --- INTELLIGENT SUGGESTION LOGIC ---
+
+    def did_mount(self):
+        """Called when the control is added to the page."""
+        pass  # self.page is now available
 
     def _calculate_cursor_position(self, current_text):
         """
