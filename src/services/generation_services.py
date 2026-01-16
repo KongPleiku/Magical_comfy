@@ -27,6 +27,16 @@ class GenerationService:
 
     def _update_generation_settings(self):
         """Updates the generation settings in the API payload."""
+        face_detailer_use_value = 1
+
+        if settings_services.settings.generation.use_face_detailer == True:
+            face_detailer_use_value = 2
+
+        else:
+            face_detailer_use_value = 1
+
+        logger.warning(face_detailer_use_value)
+
         generation_settings = settings_services.settings.generation
         self.api[EMPTY_LATENT_IMAGE_NODE]["inputs"]["width"] = generation_settings.width
         self.api[EMPTY_LATENT_IMAGE_NODE]["inputs"][
@@ -39,6 +49,8 @@ class GenerationService:
         sampler_settings["cfg"] = generation_settings.cfg
         sampler_settings["sampler_name"] = generation_settings.sampler_name
         sampler_settings["scheduler"] = generation_settings.scheduler
+
+        self.api["21"]["inputs"]["select"] = face_detailer_use_value
 
     def _update_face_detailer_settings(self):
         """Updates the face detailer settings in the API payload."""
@@ -57,6 +69,7 @@ class GenerationService:
 
     def generate(self, prompt: str):
         """Generates an image based on the provided prompt and waits for completion."""
+        logger.info(f"Generating with this configuration {self.api}")
         # Ensure websocket is connected and client_id is up-to-date
         if not client.websocket_client or not client.websocket_client.connected:
             client._create_websocket_connection()

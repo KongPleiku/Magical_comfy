@@ -12,15 +12,19 @@ from route import navigator
 def main(page: ft.Page):
     navigator.set_page(page)
 
+    main_view = Main_View(page)
+    setting_view = Setting_View(page)
+    gallery_view = Gallery_View(page)
+
     def route_change(route):
         page.views.clear()
         if page.route == "/main":
-            page.views.append(Main_View(page))
+            page.views.append(main_view)
         elif page.route == "/settings":
-            page.views.append(Setting_View(page))
+            page.views.append(setting_view)
 
         elif page.route == "/gallery":
-            page.views.append(Gallery_View(page))
+            page.views.append(gallery_view)
 
         page.update()
 
