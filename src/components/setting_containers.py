@@ -3,6 +3,8 @@ import flet as ft
 from loguru import logger
 from route import navigator
 
+from services.client_services import client
+
 
 class Setting_container(ft.Container):
     def __init__(self):
@@ -51,6 +53,15 @@ class Setting_container(ft.Container):
             right=5,
             content=self.pack,
         )
+
+        self._init_connection_dot()
+
+    def _init_connection_dot(self):
+        if client.connected:
+            self.connection_dot.bgcolor = ft.Colors.GREEN_500
+
+        else:
+            self.connection_dot.bgcolor = ft.Colors.RED_500
 
     def _on_setting_click(self, e):
         logger.info("Setting button clicked")
