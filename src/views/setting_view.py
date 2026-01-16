@@ -276,7 +276,7 @@ class Setting_View(ft.View):
             value=settings_services.settings.connection.host,
             border_radius=20,
             on_change=lambda e: (
-                settings_services.set_connection_value("host", e.control.value)
+                settings_services.set_connection_settings("host", e.control.value)
             ),
         )
 
@@ -286,7 +286,7 @@ class Setting_View(ft.View):
             value=settings_services.settings.connection.port,
             border_radius=20,
             on_change=lambda e: (
-                settings_services.set_connection_value("port", e.control.value)
+                settings_services.set_connection_settings("port", e.control.value)
             ),
         )
 
@@ -477,7 +477,7 @@ class Setting_View(ft.View):
         self.page.update()
 
     def _on_connect_button_clicked(self, e):
-        asyncio.run(client.check_connection())
+        client.check_connection()
         if client.connected:
             self.Connection_string.value = "Connected"
             self.Connection_string.color = ft.Colors.GREEN

@@ -1,5 +1,6 @@
 import httpx
-import asyncio
+import websocket
+import uuid
 from loguru import logger
 from services.setting_services import settings_services
 from utils.singleton import SingletonMeta
@@ -8,21 +9,46 @@ from utils.singleton import SingletonMeta
 class Comfy_Client(metaclass=SingletonMeta):
     def __init__(self):
         self.connected = False
+
         self.base_url = self._get_base_url()
-        self.client = httpx.AsyncClient(base_url=self.base_url, timeout=30.0)
+        self.client = httpx.Client(base_url=self.base_url, timeout=30.0)
+
+        self.websocket_client = websocket.WebSocket()
+        self.current_client_id = uuid.uuid4()
+
         logger.info(f"Comfy_Client initialized with base_url: {self.base_url}")
 
-        self.connected = asyncio.run(self.check_connection())
+        self.check_connection()
+        self._create_websocket_connection()
 
     def _get_base_url(self):
         host = settings_services.settings.connection.host
         port = settings_services.settings.connection.port
-        return f"http://{host}:{port}"
+        url = f"http://{host}:{port}"
+        logger.info(f"url: {url}")
+        return url
+    
+    def _get_ws_url(self):
+        self.current_client_id = uuid.uuid4()
 
-    async def check_connection(self):
+        host = settings_services.settings.connection.host
+        port = settings_services.settings.connection.port
+
+        server_address = f"{host}:{port}"
+        logger.info(server_address)
+
+        ws_url = f"ws://{server_address}/ws?clientId={self.current_client_id}"
+        logger.info(f"ws_connection: {ws_url}")
+        return ws_url
+    
+    def _create_http_connection(self):
         try:
             self.base_url = self._get_base_url()
-            response = await self.client.get("/queue")
+            self.client = httpx.Client(
+                base_url=self.base_url,
+                timeout=30.0
+            )
+            response = self.client.get("/queue")
             response.raise_for_status()
             logger.info("Successfully connected to ComfyUI.")
             return True
@@ -35,6 +61,23 @@ class Comfy_Client(metaclass=SingletonMeta):
         except Exception as e:
             logger.error(f"An unexpected error occurred while checking connection: {e}")
             return False
+    
+    def _create_websocket_connection(self):
+        try:
+            url = self._get_ws_url()
+            self.websocket_client.connect(url=url)
+
+            return True
+        
+        except Exception as e:
+            logger.error(f"An unexpected error occured while creating websocket connection: {e}")
+
+    def check_connection(self):
+        if self._create_http_connection() and self._create_websocket_connection():
+            self.connected = True
+        
+        else:
+            self.connected = False
 
 
 client = Comfy_Client()
