@@ -3,7 +3,7 @@ from loguru import logger
 from views.main_view import Main_View
 from views.setting_view import Setting_View
 from views.gallery_view import Gallery_View
-from utils.ultis import ALL_TAGS
+from utils.ultis import ALL_TAGS, API_JSON
 from services.setting_services import settings_services
 from services.client_services import client
 from route import navigator

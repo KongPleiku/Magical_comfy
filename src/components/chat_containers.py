@@ -3,6 +3,8 @@ from utils.ultis import ALL_TAGS
 from loguru import logger
 import re
 
+from services.generation_services import Generation_services
+
 
 class ChatBar(ft.Container):
     def __init__(self):
@@ -78,6 +80,10 @@ class ChatBar(ft.Container):
 
             self.action_button.icon = ft.Icons.CLOSE
             self.action_button.icon_color = ft.Colors.RED
+
+            prompt = self.prompt_field.value
+            logger.info(f"Generating image width: {prompt}")
+            Generation_services().generate(prompt=prompt)
 
         else:
             logger.info(f"On Cancellation")
