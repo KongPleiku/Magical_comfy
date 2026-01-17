@@ -1,0 +1,262 @@
+import flet as ft
+from utils.ultis import ALL_TAGS
+from loguru import logger
+import re
+import threading
+
+from services.generation_services import GenerationService
+from services.setting_services import settings_services
+from services.client_services import client
+
+
+class ChatBar(ft.Container):
+    def __init__(self):
+        super().__init__(
+            bottom=10,
+            left=10,
+            right=10,
+        )
+        self.state = "IDLE"  # "IDLE" or "GENERATING"
+
+        self.action_button = ft.IconButton(
+            icon=ft.Icons.SEND,
+            icon_color=ft.Colors.WHITE,
+            tooltip="Send",
+            on_click=self._on_send_click,
+        )
+
+        # Current_State
+        self.cursor_position = 0
+        self.last_value = ""
+
+        self.prompt_field = ft.TextField(
+            hint_text="Describe your image...",
+            border_radius=25,
+            bgcolor=ft.Colors.BLACK54,
+            filled=True,
+            multiline=True,
+            min_lines=1,
+            max_lines=3,
+            content_padding=ft.padding.symmetric(horizontal=20, vertical=10),
+            expand=True,
+            border_color=ft.Colors.TRANSPARENT,
+            on_change=self._on_text_change,
+        )
+
+        self.suggestion_list = ft.ListView(spacing=0, padding=0)
+        self.suggestion_container = ft.Container(
+            content=self.suggestion_list,
+            bgcolor=ft.Colors.GREY_900,
+            border_radius=15,
+            height=0,
+            opacity=0,
+            animate=ft.animation.Animation(200, ft.AnimationCurve.EASE_OUT),
+            animate_opacity=200,
+            margin=ft.margin.only(bottom=10, left=10, right=10),
+        )
+
+        self.prompt_section = ft.Row(
+            controls=[self.prompt_field, self.action_button],
+        )
+
+        self.wrapper = ft.Column(
+            controls=[self.suggestion_container, self.prompt_section],
+            expand=True,
+            spacing=0,
+        )
+        self.content = self.wrapper
+        self.init_prompt_field()
+
+    def set_prompt(self, value: str):
+        self.prompt_field.value = value
+        self.last_value = value
+        self.update()
+
+    def init_prompt_field(self):
+        if not settings_services.settings.prompt.positive == "":
+            self.prompt_field.value = settings_services.settings.prompt.positive
+
+    def _on_send_click(self, e):
+        if self.state == "IDLE":
+            # Close any existing connection to force a new client_id
+            client.close_websocket()
+
+            self.state = "GENERATING"
+            self.action_button.icon = ft.Icons.CLOSE
+            self.action_button.icon_color = ft.Colors.RED
+            self.prompt_field.read_only = True
+            self.update()
+
+            prompt = self.prompt_field.value
+            logger.info(f"Starting generation for prompt: {prompt}")
+
+            # Run generation in a separate thread
+            thread = threading.Thread(target=self._run_generation, args=(prompt,))
+            thread.start()
+
+        elif self.state == "GENERATING":
+            logger.info("Sending cancellation request and closing websocket.")
+            client.cancel_generation()
+            client.close_websocket()
+            # The _run_generation thread will now catch the exception and handle resetting the UI
+
+    def _run_generation(self, prompt):
+        """This function runs in a separate thread."""
+        try:
+            # We pass the binary_callback to the generate function
+            # so we can process the binary data from the websocket
+            GenerationService().generate(prompt=prompt)
+            logger.info("Generation finished successfully.")
+        except Exception as e:
+            logger.error(f"An error occurred during generation: {e}")
+        finally:
+            # When generation is done (or cancelled/failed), reset the UI
+            self._reset_ui_to_idle()
+
+    def _reset_ui_to_idle(self):
+        """Safely reset UI elements to idle state from any thread."""
+        self.state = "IDLE"
+        self.action_button.icon = ft.Icons.SEND
+        self.action_button.icon_color = ft.Colors.WHITE
+        self.prompt_field.read_only = False
+        self.update()
+        logger.info("UI reset to idle state.")
+
+    # --- INTELLIGENT SUGGESTION LOGIC ---
+
+    def did_mount(self):
+        """Called when the control is added to the page."""
+        pass  # self.page is now available
+
+    def _calculate_cursor_position(self, current_text):
+        """
+        Since Flet 0.25.2 lacks selection property, we infer the cursor position
+        by comparing the old text (self.last_value) with the new text.
+        """
+        if not self.last_value:
+            return len(current_text)
+
+        # 1. Find the length of the common prefix (where text is identical)
+        common_len = 0
+        min_len = min(len(current_text), len(self.last_value))
+        while (
+            common_len < min_len
+            and current_text[common_len] == self.last_value[common_len]
+        ):
+            common_len += 1
+
+        # 2. Estimate cursor based on change type
+        if len(current_text) >= len(self.last_value):
+            # Insertion (Typing): Cursor is at end of inserted segment
+            inserted_count = len(current_text) - len(self.last_value)
+            return common_len + inserted_count
+        else:
+            # Deletion (Backspace): Cursor is at the point of divergence
+            return common_len
+
+    def _get_word_boundary(self):
+        text = self.prompt_field.value
+        cursor = self.cursor_position
+
+        if not text:
+            return None, None, None
+
+        # Look strictly BEHIND the calculated cursor
+        text_before_cursor = text[:cursor]
+
+        # Regex: Find the continuous word characters touching the end of the string
+        match = re.search(r"[\w-]+$", text_before_cursor)
+
+        if not match:
+            return None, None, None
+
+        # The start index in the FULL text
+        start = match.start()
+        # The end index is effectively our cursor
+        end = cursor
+        current_word = match.group(0)
+
+        return start, end, current_word
+
+    def _on_text_change(self, e):
+        current_text = e.control.value
+
+        # 1. Calculate cursor position before updating last_value
+        self.cursor_position = self._calculate_cursor_position(current_text)
+
+        # 2. Update last_value for the next event
+        self.last_value = current_text
+
+        settings_services.set_prompt_settings("positive", value=self.prompt_field.value)
+
+        self._trigger_suggestions()
+
+    def _trigger_suggestions(self):
+        start, end, current_word = self._get_word_boundary()
+
+        if not current_word:
+            self.hide_suggestions()
+            return
+
+        # Smart Filtering
+        matches = [p for p in ALL_TAGS if p.lower().startswith(current_word.lower())]
+
+        # Exact match check (if user finished typing the word, hide menu)
+        if len(matches) == 1 and matches[0].lower() == current_word.lower():
+            self.hide_suggestions()
+            return
+
+        if not matches:
+            self.hide_suggestions()
+            return
+
+        self._update_suggestions(matches[:20])
+
+    def _update_suggestions(self, matches):
+        self.suggestion_list.controls = [
+            ft.ListTile(
+                title=ft.Text(m, color=ft.colors.WHITE),
+                data=m,
+                on_click=self._use_suggestion,
+            )
+            for m in matches
+        ]
+        self.suggestion_container.height = min(len(matches) * 50, 200)
+        self.suggestion_container.opacity = 1
+        self.suggestion_container.update()
+        self.suggestion_list.update()
+
+    def _use_suggestion(self, e):
+        suggestion = e.control.data
+        text = self.prompt_field.value
+
+        # Recalculate boundary based on current cursor
+        start, end, current_word = self._get_word_boundary()
+
+        if start is None:
+            return
+
+        # Split text into 3 parts: Before word, The word (removed), After cursor
+        text_before = text[:start]
+        text_after = text[end:]
+
+        # Create new prompt
+        new_text = f"{text_before}{suggestion} {text_after}"
+
+        self.prompt_field.value = new_text
+        self.last_value = new_text  # CRITICAL: Sync last_value so next type works
+        self.prompt_field.update()
+        self.prompt_field.focus()
+        self.hide_suggestions()
+
+        settings_services.set_prompt_settings("positive", value=self.prompt_field.value)
+
+    def hide_suggestions(self):
+        self.suggestion_container.height = 0
+        self.suggestion_container.opacity = 0
+        self.suggestion_container.update()
+
+    def toggle_read_only(self, is_readonly):
+        logger.debug(f"Toggling read-only to: {is_readonly}")
+        self.prompt_field.read_only = is_readonly
+        self.prompt_field.update()

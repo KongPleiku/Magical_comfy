@@ -87,6 +87,15 @@ wheels = [
 ]
 
 [[package]]
+name = "dacite"
+version = "1.9.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/55/a0/7ca79796e799a3e782045d29bf052b5cde7439a2bbb17f15ff44f7aacc63/dacite-1.9.2.tar.gz", hash = "sha256:6ccc3b299727c7aa17582f0021f6ae14d5de47c7227932c47fec4cdfefd26f09", size = 22420, upload-time = "2025-02-05T09:27:29.757Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/94/35/386550fd60316d1e37eccdda609b074113298f23cef5bddb2049823fe666/dacite-1.9.2-py3-none-any.whl", hash = "sha256:053f7c3f5128ca2e9aceb66892b1a3c8936d02c686e707bee96e19deef4bc4a0", size = 16600, upload-time = "2025-02-05T09:27:24.345Z" },
+]
+
+[[package]]
 name = "distlib"
 version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -247,18 +256,93 @@ name = "magical-comfy"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "anyio", version = "4.5.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9' and platform_system != 'Pyodide'" },
+    { name = "anyio", version = "4.12.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9' and platform_system != 'Pyodide'" },
+    { name = "certifi", marker = "platform_system != 'Pyodide'" },
+    { name = "cfgv", version = "3.4.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "cfgv", version = "3.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "dacite" },
+    { name = "distlib" },
+    { name = "exceptiongroup", marker = "python_full_version < '3.11' and platform_system != 'Pyodide'" },
+    { name = "filelock", version = "3.16.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
+    { name = "filelock", version = "3.19.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.9.*'" },
+    { name = "filelock", version = "3.20.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "flet" },
+    { name = "h11", marker = "platform_system != 'Pyodide'" },
+    { name = "httpcore", marker = "platform_system != 'Pyodide'" },
+    { name = "httpx", marker = "platform_system != 'Pyodide'" },
+    { name = "identify", version = "2.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
+    { name = "identify", version = "2.6.15", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
+    { name = "idna", marker = "platform_system != 'Pyodide'" },
     { name = "loguru" },
+    { name = "nodeenv" },
+    { name = "oauthlib", marker = "platform_system != 'Pyodide'" },
+    { name = "pip", version = "25.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
+    { name = "pip", version = "25.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
+    { name = "platformdirs", version = "4.3.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
+    { name = "platformdirs", version = "4.4.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.9.*'" },
+    { name = "platformdirs", version = "4.5.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "pre-commit", version = "3.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "pre-commit", version = "4.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.9.*'" },
     { name = "pre-commit", version = "4.5.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "pyyaml" },
+    { name = "repath" },
+    { name = "six" },
+    { name = "sniffio", marker = "python_full_version < '3.9' and platform_system != 'Pyodide'" },
+    { name = "typing-extensions", version = "4.13.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
+    { name = "typing-extensions", version = "4.15.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.9' and python_full_version < '3.13' and platform_system != 'Pyodide') or (python_full_version >= '3.9' and python_full_version < '3.11' and platform_system == 'Pyodide')" },
+    { name = "virtualenv" },
+    { name = "websocket-client", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
+    { name = "websocket-client", version = "1.9.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
+    { name = "win32-setctime", marker = "sys_platform == 'win32'" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "anyio", marker = "python_full_version < '3.9' and platform_system != 'Pyodide'", specifier = "==4.5.2" },
+    { name = "anyio", marker = "python_full_version >= '3.9' and platform_system != 'Pyodide'", specifier = "==4.12.1" },
+    { name = "certifi", marker = "platform_system != 'Pyodide'", specifier = "==2026.1.4" },
+    { name = "cfgv", marker = "python_full_version < '3.10'", specifier = "==3.4.0" },
+    { name = "cfgv", marker = "python_full_version >= '3.10'", specifier = "==3.5.0" },
+    { name = "colorama", marker = "sys_platform == 'win32'", specifier = "==0.4.6" },
+    { name = "dacite", specifier = "==1.9.2" },
+    { name = "distlib", specifier = "==0.4.0" },
+    { name = "exceptiongroup", marker = "python_full_version < '3.11' and platform_system != 'Pyodide'", specifier = "==1.3.1" },
+    { name = "filelock", marker = "python_full_version < '3.9'", specifier = "==3.16.1" },
+    { name = "filelock", marker = "python_full_version == '3.9.*'", specifier = "==3.19.1" },
+    { name = "filelock", marker = "python_full_version >= '3.10'", specifier = "==3.20.3" },
     { name = "flet", specifier = "==0.25.2" },
-    { name = "loguru", specifier = ">=0.7.3" },
+    { name = "h11", marker = "platform_system != 'Pyodide'", specifier = "==0.16.0" },
+    { name = "httpcore", marker = "platform_system != 'Pyodide'", specifier = "==1.0.9" },
+    { name = "httpx", marker = "platform_system != 'Pyodide'", specifier = "==0.28.1" },
+    { name = "identify", marker = "python_full_version < '3.9'", specifier = "==2.6.1" },
+    { name = "identify", marker = "python_full_version >= '3.9'", specifier = "==2.6.15" },
+    { name = "idna", marker = "platform_system != 'Pyodide'", specifier = "==3.11" },
+    { name = "loguru", specifier = "==0.7.3" },
+    { name = "nodeenv", specifier = "==1.10.0" },
+    { name = "oauthlib", marker = "platform_system != 'Pyodide'", specifier = "==3.3.1" },
+    { name = "pip", specifier = ">=25.0.1" },
+    { name = "pip", marker = "python_full_version < '3.9'", specifier = "==25.0.1" },
+    { name = "pip", marker = "python_full_version >= '3.9'", specifier = "==25.3" },
+    { name = "platformdirs", marker = "python_full_version < '3.9'", specifier = "==4.3.6" },
+    { name = "platformdirs", marker = "python_full_version == '3.9.*'", specifier = "==4.4.0" },
+    { name = "platformdirs", marker = "python_full_version >= '3.10'", specifier = "==4.5.1" },
     { name = "pre-commit", specifier = ">=3.5.0" },
+    { name = "pre-commit", marker = "python_full_version < '3.9'", specifier = "==3.5.0" },
+    { name = "pre-commit", marker = "python_full_version == '3.9.*'", specifier = "==4.3.0" },
+    { name = "pre-commit", marker = "python_full_version >= '3.10'", specifier = "==4.5.1" },
+    { name = "pyyaml", specifier = "==6.0.3" },
+    { name = "repath", specifier = "==0.9.0" },
+    { name = "six", specifier = "==1.17.0" },
+    { name = "sniffio", marker = "python_full_version < '3.9' and platform_system != 'Pyodide'", specifier = "==1.3.1" },
+    { name = "typing-extensions", marker = "python_full_version < '3.9'", specifier = "==4.13.2" },
+    { name = "typing-extensions", marker = "(python_full_version >= '3.9' and python_full_version < '3.13' and platform_system != 'Pyodide') or (python_full_version >= '3.9' and python_full_version < '3.11' and platform_system == 'Pyodide')", specifier = "==4.15.0" },
+    { name = "virtualenv", specifier = "==20.36.1" },
+    { name = "websocket-client", specifier = ">=1.8.0" },
+    { name = "websocket-client", marker = "python_full_version < '3.9'", specifier = "==1.8.0" },
+    { name = "websocket-client", marker = "python_full_version >= '3.9'", specifier = "==1.9.0" },
+    { name = "win32-setctime", marker = "sys_platform == 'win32'", specifier = "==1.2.0" },
 ]
 
 [[package]]
@@ -277,6 +361,31 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/0b/5f/19930f824ffeb0ad4372da4812c50edbd1434f678c90c2733e1188edfc63/oauthlib-3.3.1.tar.gz", hash = "sha256:0f0f8aa759826a193cf66c12ea1af1637f87b9b4622d46e866952bb022e538c9", size = 185918, upload-time = "2025-06-19T22:48:08.269Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/be/9c/92789c596b8df838baa98fa71844d84283302f7604ed565dafe5a6b5041a/oauthlib-3.3.1-py3-none-any.whl", hash = "sha256:88119c938d2b8fb88561af5f6ee0eec8cc8d552b7bb1f712743136eb7523b7a1", size = 160065, upload-time = "2025-06-19T22:48:06.508Z" },
+]
+
+[[package]]
+name = "pip"
+version = "25.0.1"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version < '3.9'",
+]
+sdist = { url = "https://files.pythonhosted.org/packages/70/53/b309b4a497b09655cb7e07088966881a57d082f48ac3cb54ea729fd2c6cf/pip-25.0.1.tar.gz", hash = "sha256:88f96547ea48b940a3a385494e181e29fb8637898f88d88737c5049780f196ea", size = 1950850, upload-time = "2025-02-09T17:14:04.423Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c9/bc/b7db44f5f39f9d0494071bddae6880eb645970366d0a200022a1a93d57f5/pip-25.0.1-py3-none-any.whl", hash = "sha256:c46efd13b6aa8279f33f2864459c8ce587ea6a1a59ee20de055868d8f7688f7f", size = 1841526, upload-time = "2025-02-09T17:14:01.463Z" },
+]
+
+[[package]]
+name = "pip"
+version = "25.3"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.10'",
+    "python_full_version == '3.9.*'",
+]
+sdist = { url = "https://files.pythonhosted.org/packages/fe/6e/74a3f0179a4a73a53d66ce57fdb4de0080a8baa1de0063de206d6167acc2/pip-25.3.tar.gz", hash = "sha256:8d0538dbbd7babbd207f261ed969c65de439f6bc9e5dbd3b3b9a77f25d95f343", size = 1803014, upload-time = "2025-10-25T00:55:41.394Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/44/3c/d717024885424591d5376220b5e836c2d5293ce2011523c9de23ff7bf068/pip-25.3-py3-none-any.whl", hash = "sha256:9655943313a94722b7774661c21049070f6bbb0a1516bf02f7c8d5d9201514cd", size = 1778622, upload-time = "2025-10-25T00:55:39.247Z" },
 ]
 
 [[package]]
@@ -525,6 +634,31 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/aa/a3/4d310fa5f00863544e1d0f4de93bddec248499ccf97d4791bc3122c9d4f3/virtualenv-20.36.1.tar.gz", hash = "sha256:8befb5c81842c641f8ee658481e42641c68b5eab3521d8e092d18320902466ba", size = 6032239, upload-time = "2026-01-09T18:21:01.296Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/6a/2a/dc2228b2888f51192c7dc766106cd475f1b768c10caaf9727659726f7391/virtualenv-20.36.1-py3-none-any.whl", hash = "sha256:575a8d6b124ef88f6f51d56d656132389f961062a9177016a50e4f507bbcc19f", size = 6008258, upload-time = "2026-01-09T18:20:59.425Z" },
+]
+
+[[package]]
+name = "websocket-client"
+version = "1.8.0"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version < '3.9'",
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e6/30/fba0d96b4b5fbf5948ed3f4681f7da2f9f64512e1d303f94b4cc174c24a5/websocket_client-1.8.0.tar.gz", hash = "sha256:3239df9f44da632f96012472805d40a23281a991027ce11d2f45a6f24ac4c3da", size = 54648, upload-time = "2024-04-23T22:16:16.976Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5a/84/44687a29792a70e111c5c477230a72c4b957d88d16141199bf9acb7537a3/websocket_client-1.8.0-py3-none-any.whl", hash = "sha256:17b44cc997f5c498e809b22cdf2d9c7a9e71c02c8cc2b6c56e7c2d1239bfa526", size = 58826, upload-time = "2024-04-23T22:16:14.422Z" },
+]
+
+[[package]]
+name = "websocket-client"
+version = "1.9.0"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.10'",
+    "python_full_version == '3.9.*'",
+]
+sdist = { url = "https://files.pythonhosted.org/packages/2c/41/aa4bf9664e4cda14c3b39865b12251e8e7d239f4cd0e3cc1b6c2ccde25c1/websocket_client-1.9.0.tar.gz", hash = "sha256:9e813624b6eb619999a97dc7958469217c3176312b3a16a4bd1bc7e08a46ec98", size = 70576, upload-time = "2025-10-07T21:16:36.495Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/34/db/b10e48aa8fff7407e67470363eac595018441cf32d5e1001567a7aeba5d2/websocket_client-1.9.0-py3-none-any.whl", hash = "sha256:af248a825037ef591efbf6ed20cc5faa03d3b47b9e5a2230a529eeee1c1fc3ef", size = 82616, upload-time = "2025-10-07T21:16:34.951Z" },
 ]
 
 [[package]]
