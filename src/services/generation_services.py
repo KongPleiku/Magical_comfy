@@ -9,6 +9,7 @@ from loguru import logger
 import json
 import websocket
 from typing import Callable
+import requests
 
 
 # Constants for node IDs to improve readability
@@ -132,6 +133,7 @@ class GenerationService:
                         f"Image generation completed for prompt ID: {prompt_id} (Type: {msg_type})"
                     )
                     # Potentially publish final image data here
+                    self._download_image(prompt_id=prompt_id)
                     return message_data.get("data", {}).get("output")
 
                 elif msg_type == "execution_success":
@@ -162,3 +164,40 @@ class GenerationService:
             except Exception as e:
                 logger.error(f"An error occurred while waiting for completion: {e}")
                 return None
+
+    def _download_image(self, prompt_id):
+        try:
+            server_address = f"{settings_services.settings.connection.host}:{settings_services.settings.connection.port}"
+            history_url = f"http://{server_address}/history/{prompt_id}"
+            logger.info(history_url)
+            history_response = client.client.get(f"/history/{prompt_id}")
+            history = history_response.content
+
+            logger.info(history)
+            response_data = json.loads(history)
+            outputs = response_data[prompt_id]["outputs"]
+
+            image_data = None
+            for node_id in outputs:
+                if "images" in outputs[node_id]:
+                    image_data = outputs[node_id]["images"][0]
+                    break
+
+            if image_data:
+                filename = image_data["filename"]
+                subfolder = image_data["subfolder"]
+                folder_type = image_data["type"]
+
+            download_url = (
+                f"/view?filename={filename}&subfolder={subfolder}&type={folder_type}"
+            )
+            final_image = client.client.get(download_url)
+            final_image = final_image.content
+
+            logger.success(f"Downloaded image")
+            event_bus.publish("image_downloaded", final_image)
+
+            return final_image
+
+        except Exception as e:
+            logger.exception(e)
