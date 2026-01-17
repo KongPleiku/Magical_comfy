@@ -4,6 +4,7 @@ import uuid
 from loguru import logger
 from services.setting_services import settings_services
 from utils.singleton import SingletonMeta
+from utils.event_bus import event_bus
 
 
 class Comfy_Client(metaclass=SingletonMeta):
@@ -84,6 +85,8 @@ class Comfy_Client(metaclass=SingletonMeta):
             response = self.client.post("/interrupt")
             response.raise_for_status()
             logger.info("Successfully sent interruption request.")
+
+            event_bus.publish("on_cancel")
             return True
         except httpx.HTTPStatusError as e:
             logger.error(f"HTTP error sending interruption request: {e}")

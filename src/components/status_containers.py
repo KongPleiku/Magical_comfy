@@ -1,4 +1,5 @@
 import flet as ft
+from utils.event_bus import event_bus
 
 
 class Status_Container(ft.Container):
@@ -43,3 +44,34 @@ class Status_Container(ft.Container):
         self.content = self.Pack
         self.top = 40
         self.left = 20
+
+        event_bus.subscribe("on_generate", self.on_generate_state)
+        event_bus.subscribe("image_downloaded", self.on_success_generate_state)
+        event_bus.subscribe("on_cancel", self.on_cancel_state)
+
+    def on_generate_state(self, prompt_id):
+        self.status_text.color = ft.Colors.YELLOW_500
+        self.status_text.value = prompt_id
+
+        self.action_text.color = ft.Colors.BLUE_500
+        self.action_text.value = "On Generation"
+
+        self.update()
+
+    def on_success_generate_state(self, a):
+        self.status_text.color = ft.Colors.GREEN
+        self.status_text.value = "Successful"
+
+        self.action_text.color = ft.Colors.WHITE
+        self.action_text.value = "Idle"
+
+        self.update()
+
+    def on_cancel_state(self):
+        self.status_text.color = ft.Colors.RED
+        self.status_text.value = "Cancelled"
+
+        self.action_text.color = ft.Colors.WHITE
+        self.action_text.value = "Idle"
+
+        self.update()

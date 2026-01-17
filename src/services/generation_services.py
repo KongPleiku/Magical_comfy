@@ -114,6 +114,8 @@ class GenerationService:
         timeout_seconds = 20
         client.websocket_client.settimeout(timeout_seconds)
 
+        event_bus.publish(event_type="on_generate", prompt_id=prompt_id)
+
         while True:
             try:
                 message = client.websocket_client.recv()
