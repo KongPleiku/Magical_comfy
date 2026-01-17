@@ -1,5 +1,5 @@
 from utils.singleton import SingletonMeta
-from utils.ultis import API_JSON
+from utils.ultis import API_JSON, random_seed
 from utils.event_bus import event_bus
 
 from services.client_services import client
@@ -29,11 +29,17 @@ class GenerationService:
         """Updates the generation settings in the API payload."""
         face_detailer_use_value = 1
 
+        # Face detailer condition
         if settings_services.settings.generation.use_face_detailer == True:
             face_detailer_use_value = 2
-
         else:
             face_detailer_use_value = 1
+
+        # Use Random seed condition
+        seed = settings_services.settings.generation.last_seed
+        if settings_services.settings.generation.random_seed:
+            seed = random_seed()
+            settings_services.set_generation_value("last_seed", seed)
 
         logger.warning(face_detailer_use_value)
 
@@ -44,7 +50,7 @@ class GenerationService:
         ] = generation_settings.height
 
         sampler_settings = self.api[KSAMPLER_NODE]["inputs"]
-        sampler_settings["seed"] = generation_settings.last_seed
+        sampler_settings["seed"] = seed
         sampler_settings["steps"] = generation_settings.steps
         sampler_settings["cfg"] = generation_settings.cfg
         sampler_settings["sampler_name"] = generation_settings.sampler_name

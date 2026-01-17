@@ -3,6 +3,7 @@ import os
 import csv
 from pathlib import Path
 import json
+import random
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 
@@ -51,6 +52,11 @@ def load_json_api():
         )
 
     return api
+
+
+def random_seed() -> int:
+    random_seed = random.randint(0, 2**32 - 1)
+    return random_seed
 
 
 ALL_TAGS = load_danbooru_tags()

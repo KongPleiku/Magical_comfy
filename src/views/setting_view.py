@@ -3,6 +3,7 @@ from loguru import logger
 from components.value_slider_containers import Slider_Container_INT
 from services.setting_services import settings_services
 from services.client_services import client
+from utils.event_bus import event_bus
 import random
 import asyncio
 
@@ -378,6 +379,8 @@ class Setting_View(ft.View):
         self._init_face_detailer_setting_column()
         self._init_connection_settings()
 
+        event_bus.subscribe("[generation][last_seed]", self._on_last_seed_change)
+
         logger.info("Setting_View initialized.")
 
     # INITAL FUNCTION
@@ -488,3 +491,8 @@ class Setting_View(ft.View):
 
         self.page.update()
         settings_services.save_configs()
+
+    def _on_last_seed_change(self, value):
+        self.seed_field.value = value
+
+        logger.info(f"seed_field change to: {value}")

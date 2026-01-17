@@ -1,4 +1,5 @@
 from utils.singleton import SingletonMeta
+from utils.event_bus import event_bus
 from loguru import logger
 from dataclasses import dataclass, asdict
 
@@ -151,6 +152,10 @@ class Setting_services(metaclass=SingletonMeta):
             # Optional: Add type validation here if needed
             setattr(self.settings.generation, key, value)
             self.save_configs()
+
+            event = f"[generation][{key}]"
+            event_bus.publish(event, value=value)
+
             logger.info(f"Updated Generation [{key}] to {value}")
         else:
             logger.error(f"Generation setting '{key}' does not exist.")
