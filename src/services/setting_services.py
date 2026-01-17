@@ -206,5 +206,14 @@ class Setting_services(metaclass=SingletonMeta):
         else:
             logger.error(f"Connection setting '{key}' does not exist.")
 
+    def set_prompt_settings(self, key: str, value: Any):
+
+        if hasattr(self.settings.prompt, key):
+            setattr(self.settings.prompt, key, value)
+            self.save_configs()
+            logger.info(f"Updated Connection [{key}] to {value}")
+        else:
+            logger.error(f"Connection setting '{key}' does not exist.")
+
 
 settings_services = Setting_services()

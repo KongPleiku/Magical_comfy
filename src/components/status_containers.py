@@ -51,7 +51,7 @@ class Status_Container(ft.Container):
 
     def on_generate_state(self, prompt_id):
         self.status_text.color = ft.Colors.YELLOW_500
-        self.status_text.value = prompt_id
+        self.status_text.value = "Previewing"
 
         self.action_text.color = ft.Colors.BLUE_500
         self.action_text.value = "On Generation"

@@ -5,6 +5,7 @@ import re
 import threading
 
 from services.generation_services import GenerationService
+from services.setting_services import settings_services
 from services.client_services import client
 
 
@@ -64,11 +65,16 @@ class ChatBar(ft.Container):
             spacing=0,
         )
         self.content = self.wrapper
+        self.init_prompt_field()
 
     def set_prompt(self, value: str):
         self.prompt_field.value = value
         self.last_value = value
         self.update()
+
+    def init_prompt_field(self):
+        if not settings_services.settings.prompt.positive == "":
+            self.prompt_field.value = settings_services.settings.prompt.positive
 
     def _on_send_click(self, e):
         if self.state == "IDLE":
@@ -181,6 +187,8 @@ class ChatBar(ft.Container):
         # 2. Update last_value for the next event
         self.last_value = current_text
 
+        settings_services.set_prompt_settings("positive", value=self.prompt_field.value)
+
         self._trigger_suggestions()
 
     def _trigger_suggestions(self):
@@ -240,6 +248,8 @@ class ChatBar(ft.Container):
         self.prompt_field.update()
         self.prompt_field.focus()
         self.hide_suggestions()
+
+        settings_services.set_prompt_settings("positive", value=self.prompt_field.value)
 
     def hide_suggestions(self):
         self.suggestion_container.height = 0
