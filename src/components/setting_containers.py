@@ -4,6 +4,7 @@ from loguru import logger
 from route import navigator
 
 from services.client_services import client
+from utils.event_bus import event_bus
 
 
 class Setting_container(ft.Container):
@@ -55,6 +56,8 @@ class Setting_container(ft.Container):
         )
 
         self._init_connection_dot()
+        event_bus.subscribe("connected", self._on_connected)
+        event_bus.subscribe("disconnected", self._on_disconnected)
 
     def _init_connection_dot(self):
         if client.connected:
@@ -62,6 +65,12 @@ class Setting_container(ft.Container):
 
         else:
             self.connection_dot.bgcolor = ft.Colors.RED_500
+
+    def _on_connected(self):
+        self.connection_dot.bgcolor = ft.Colors.GREEN
+
+    def _on_disconnected(self):
+        self.connection_dot.bgcolor = ft.Colors.RED
 
     def _on_setting_click(self, e):
         logger.info("Setting button clicked")

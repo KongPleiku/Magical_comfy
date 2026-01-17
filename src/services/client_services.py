@@ -75,9 +75,10 @@ class Comfy_Client(metaclass=SingletonMeta):
     def check_connection(self):
         if self._create_http_connection() and self._create_websocket_connection():
             self.connected = True
-
+            event_bus.publish("connected")
         else:
             self.connected = False
+            event_bus.publish("disconnected")
 
     def cancel_generation(self):
         """Sends a request to interrupt the current generation."""

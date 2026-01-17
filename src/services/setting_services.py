@@ -20,6 +20,12 @@ class Connection_setting:
 
 
 @dataclass
+class Prompt:
+    positive: str
+    negative: str
+
+
+@dataclass
 class Generation_setting:
     # Basic Generation
     model_name: str
@@ -65,6 +71,7 @@ class Settings:
     generation: Generation_setting
     face_detailer: Face_detailer_settings
     connection: Connection_setting
+    prompt: Prompt
 
 
 class Setting_services(metaclass=SingletonMeta):
@@ -79,6 +86,8 @@ class Setting_services(metaclass=SingletonMeta):
 
     def _init_configs(self):
         init_connection_settings = Connection_setting(host="192.168.1.1", port="8188")
+
+        init_prompt_settings = Prompt(positive="", negative="")
 
         init_generation_settings = Generation_setting(
             use_face_detailer=False,
@@ -114,6 +123,7 @@ class Setting_services(metaclass=SingletonMeta):
             generation=init_generation_settings,
             face_detailer=init_face_detailer_settings,
             connection=init_connection_settings,
+            prompt=init_prompt_settings,
         )
 
         temp_dict = asdict(self.settings)
