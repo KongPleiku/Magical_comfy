@@ -2,6 +2,8 @@ from loguru import logger
 import os
 import csv
 from pathlib import Path
+import json
+import random
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 
@@ -33,4 +35,29 @@ def load_danbooru_tags():
     return tags
 
 
+def load_json_api():
+    api = ""
+    file_path = os.path.join(ROOT_DIR, "assets", "GGUF_WORKFLOW_API.json")
+
+    try:
+        with open(file_path, "r") as f:
+            api = json.load(f)
+
+        logger.info(f"Loaded api: {api}")
+
+    except FileNotFoundError:
+        logger.error(
+            f"Error: {file_path} not found. Please check the directory structure.",
+            exc_info=True,
+        )
+
+    return api
+
+
+def random_seed() -> int:
+    random_seed = random.randint(0, 2**32 - 1)
+    return random_seed
+
+
 ALL_TAGS = load_danbooru_tags()
+API_JSON = load_json_api()

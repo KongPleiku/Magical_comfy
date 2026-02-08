@@ -1,4 +1,5 @@
 from utils.singleton import SingletonMeta
+from utils.event_bus import event_bus
 from loguru import logger
 from dataclasses import dataclass, asdict
 
@@ -16,6 +17,12 @@ storage_path = os.getenv("FLET_APP_STORAGE_DATA")
 class Connection_setting:
     port: str
     host: str
+
+
+@dataclass
+class Prompt:
+    positive: str
+    negative: str
 
 
 @dataclass
@@ -64,6 +71,7 @@ class Settings:
     generation: Generation_setting
     face_detailer: Face_detailer_settings
     connection: Connection_setting
+    prompt: Prompt
 
 
 class Setting_services(metaclass=SingletonMeta):
@@ -78,6 +86,8 @@ class Setting_services(metaclass=SingletonMeta):
 
     def _init_configs(self):
         init_connection_settings = Connection_setting(host="192.168.1.1", port="8188")
+
+        init_prompt_settings = Prompt(positive="", negative="")
 
         init_generation_settings = Generation_setting(
             use_face_detailer=False,
@@ -113,6 +123,7 @@ class Setting_services(metaclass=SingletonMeta):
             generation=init_generation_settings,
             face_detailer=init_face_detailer_settings,
             connection=init_connection_settings,
+            prompt=init_prompt_settings,
         )
 
         temp_dict = asdict(self.settings)
@@ -151,6 +162,10 @@ class Setting_services(metaclass=SingletonMeta):
             # Optional: Add type validation here if needed
             setattr(self.settings.generation, key, value)
             self.save_configs()
+
+            event = f"[generation][{key}]"
+            event_bus.publish(event, value=value)
+
             logger.info(f"Updated Generation [{key}] to {value}")
         else:
             logger.error(f"Generation setting '{key}' does not exist.")
@@ -186,6 +201,15 @@ class Setting_services(metaclass=SingletonMeta):
         """
         if hasattr(self.settings.connection, key):
             setattr(self.settings.connection, key, value)
+            self.save_configs()
+            logger.info(f"Updated Connection [{key}] to {value}")
+        else:
+            logger.error(f"Connection setting '{key}' does not exist.")
+
+    def set_prompt_settings(self, key: str, value: Any):
+
+        if hasattr(self.settings.prompt, key):
+            setattr(self.settings.prompt, key, value)
             self.save_configs()
             logger.info(f"Updated Connection [{key}] to {value}")
         else:
